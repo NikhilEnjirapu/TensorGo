@@ -14,7 +14,6 @@ import {
   Heart,
   Shield,
   Smile,
-  Home,
   Settings,
   Search,
   ArrowLeft,
@@ -454,17 +453,6 @@ function WorkspaceContent() {
 
           {/* Navigation Icons */}
           <nav className="flex flex-col items-center gap-5 w-full px-2">
-            <Link 
-              href="/"
-              className="p-3 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer relative group"
-              title="Home landing page"
-            >
-              <Home size={20} />
-              <span className="absolute left-24 bg-black/90 text-white text-[9px] font-mono py-1 px-2 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                Home Page
-              </span>
-            </Link>
-
             <button 
               onClick={() => setActiveTab("dashboard")}
               className={`p-3 rounded-xl transition-all cursor-pointer relative group ${
