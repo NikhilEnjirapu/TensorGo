@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SimulationProvider, useSimulation, TimelineEvent } from "@/context/SimulationContext";
 import {
@@ -233,6 +234,79 @@ function WorkspaceContent() {
 
   // Navigation tab for sidebar
   const [activeTab, setActiveTab] = useState<"workspace" | "dossier" | "dashboard" | "settings">("dashboard");
+  // Left Column Tabs: video or code sandbox
+  const [leftTab, setLeftTab] = useState<"video" | "code">("video");
+
+  const params = useParams();
+  const tabParam = params?.tab as string[] | undefined;
+
+  // Sync initial tab state and direct link loading with dynamic url route param
+  useEffect(() => {
+    if (tabParam && tabParam.length > 0) {
+      const currentTab = tabParam[0];
+      if (currentTab === "telemetry" || currentTab === "workspace") {
+        setActiveTab("workspace");
+        setLeftTab("video");
+      } else if (currentTab === "sandbox" || currentTab === "ide" || currentTab === "code") {
+        setActiveTab("workspace");
+        setLeftTab("code");
+      } else if (currentTab === "dossier") {
+        setActiveTab("dossier");
+      } else if (currentTab === "settings") {
+        setActiveTab("settings");
+      } else if (currentTab === "interviews" || currentTab === "dashboard") {
+        setActiveTab("dashboard");
+      }
+    } else {
+      setActiveTab("dashboard");
+    }
+  }, [tabParam]);
+
+  // Synchronize activeTab state changes to the browser URL
+  useEffect(() => {
+    let path = "/workspace/interviews";
+    if (activeTab === "workspace") {
+      if (leftTab === "code") {
+        path = "/workspace/sandbox";
+      } else {
+        path = "/workspace/telemetry";
+      }
+    } else if (activeTab === "dossier") {
+      path = "/workspace/dossier";
+    } else if (activeTab === "settings") {
+      path = "/workspace/settings";
+    } else if (activeTab === "dashboard") {
+      path = "/workspace/interviews";
+    }
+    
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, "", path);
+    }
+  }, [activeTab, leftTab]);
+
+  // Handle browser back and forward navigation (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path.endsWith("/telemetry") || path.endsWith("/workspace")) {
+        setActiveTab("workspace");
+        setLeftTab("video");
+      } else if (path.endsWith("/sandbox") || path.endsWith("/ide") || path.endsWith("/code")) {
+        setActiveTab("workspace");
+        setLeftTab("code");
+      } else if (path.endsWith("/dossier")) {
+        setActiveTab("dossier");
+      } else if (path.endsWith("/settings")) {
+        setActiveTab("settings");
+      } else if (path.endsWith("/interviews") || path.endsWith("/dashboard")) {
+        setActiveTab("dashboard");
+      } else {
+        setActiveTab("dashboard");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Settings State Hooks
   const [selectedPersona, setSelectedPersona] = useState<"zai" | "veda" | "kaelen">("zai");
@@ -273,8 +347,7 @@ function WorkspaceContent() {
   });
 
 
-  // Left Column Tabs: video or code sandbox
-  const [leftTab, setLeftTab] = useState<"video" | "code">("video");
+  // Left Column Tabs: video or code sandbox (moved to top for routing initialization)
 
   // Left Column Diarization / Sub-tabs
   const [leftBottomTab, setLeftBottomTab] = useState<"diarization" | "transcript" | "notes" | "action">("diarization");
