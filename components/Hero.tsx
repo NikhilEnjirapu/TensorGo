@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSimulation } from "@/context/SimulationContext";
 import { Play, Video, Mic, Heart, ShieldAlert, MonitorCheck, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Hero() {
   const { isActive, elapsedTime, biometrics, startSimulation, candidateState } = useSimulation();
@@ -128,13 +129,13 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="mt-8 flex flex-col sm:flex-row gap-4"
             >
-              <button
-                onClick={startSimulation}
+              <Link
+                href="/workspace"
                 className="px-6 py-3.5 bg-accent-blue text-white font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-blue-500/20 hover:bg-blue-600 transition-all group"
               >
                 <span>Launch Telemetry Simulation</span>
                 <Play size={16} className="fill-white group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              </Link>
               <a
                 href="#workflow"
                 className="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all border border-white/5 cursor-pointer"

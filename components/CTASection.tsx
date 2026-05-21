@@ -3,6 +3,7 @@
 import React from "react";
 import { Cpu, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -33,13 +34,13 @@ export default function CTASection() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-sm">
-              <button
-                onClick={() => alert("Demo Booking Engine: Telemetry session loaded. In a production build, this routes to a scheduler.")}
+              <Link
+                href="/book-demo"
                 className="px-6 py-3.5 bg-accent-blue text-white font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-500/10 hover:bg-blue-600 transition-all group"
               >
                 <span>Book Demo Session</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>
