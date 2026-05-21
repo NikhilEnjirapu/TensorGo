@@ -279,8 +279,8 @@ function WorkspaceContent() {
   // Left Column Diarization / Sub-tabs
   const [leftBottomTab, setLeftBottomTab] = useState<"diarization" | "transcript" | "notes" | "action">("diarization");
 
-  // Right Column Tabs (Health / Biometric / Insights / Audio)
-  const [rightTab, setRightTab] = useState<"health" | "biometric" | "insights" | "audio">("health");
+  // Right Column Tabs (Health / Biometric / Insights / Audio / Video)
+  const [rightTab, setRightTab] = useState<"health" | "biometric" | "insights" | "audio" | "video">("health");
 
   // Email state for candidate biometrics
   const [emailInput, setEmailInput] = useState("alex.chen@tensorgo.com");
@@ -1902,7 +1902,15 @@ function WorkspaceContent() {
                               rightTab === "audio" ? "border-accent-blue text-accent-blue" : "border-transparent text-gray-500 hover:text-gray-300"
                             }`}
                           >
-                            Audio
+                            Audio Analytics
+                          </button>
+                          <button
+                            onClick={() => setRightTab("video")}
+                            className={`pb-3 border-b-2 transition-colors cursor-pointer ${
+                              rightTab === "video" ? "border-accent-blue text-accent-blue" : "border-transparent text-gray-500 hover:text-gray-300"
+                            }`}
+                          >
+                            Video Analytics
                           </button>
                         </div>
                         <Search size={14} className="text-gray-500 cursor-pointer hover:text-gray-300 shrink-0 ml-2" />
@@ -2281,78 +2289,387 @@ function WorkspaceContent() {
                             </motion.div>
                           )}
 
-                          {/* 4. AUDIO METRICS TAB */}
-                          {rightTab === "audio" && (
-                            <motion.div
-                              key="audio-tab"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              className="space-y-4 text-gray-300 text-left text-xs"
-                            >
-                              <h3 className="text-[10px] font-bold font-mono uppercase text-white tracking-widest">
-                                Vocal Diagnostics
-                              </h3>
-                              
-                              <div className="space-y-4 pt-2">
-                                <div className="space-y-1.5 p-3 bg-white/[0.01] border border-white/5 rounded-xl">
-                                  <div className="flex justify-between font-mono text-[10px]">
-                                    <span>Filler Words count</span>
-                                    <span className="font-bold text-accent-blue">{audio.fillerWords} instances</span>
+                          {/* 4. AUDIO ANALYTICS TAB */}
+                          {rightTab === "audio" && (() => {
+                            const progress = isActive ? Math.min(1, elapsedTime / 120) : (step >= 2 ? 1 : 0.85);
+                            const likeCount = Math.floor(12 * progress);
+                            const umCount = Math.floor(8 * progress);
+                            const uhCount = Math.floor(5 * progress);
+                            const youKnowCount = Math.floor(4 * progress);
+                            const actuallyCount = Math.floor(3 * progress);
+
+                            const jitter = isActive ? Math.sin(elapsedTime * 0.4) * 1.2 : 0;
+                            const overallScore = Math.round(70 + jitter);
+                            const wpmValue = Math.round(142 + (isActive ? Math.sin(elapsedTime * 0.7) * 2.5 : 0));
+                            
+                            const engagement = Math.round(87 + (isActive ? Math.sin(elapsedTime * 0.6) * 1.5 : 0));
+                            const truthfulness = Math.round(92 + (isActive ? Math.cos(elapsedTime * 0.5) * 1 : 0));
+                            const bias = Math.round(95 + (isActive ? Math.sin(elapsedTime * 0.35) * 0.5 : 0));
+                            const sentiment = Math.round(78 + (isActive ? Math.sin(elapsedTime * 0.8) * 2 : 0));
+
+                            return (
+                              <motion.div
+                                key="audio-tab"
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="space-y-4 text-gray-300 text-left text-xs"
+                              >
+                                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                  <h3 className="text-[10px] font-bold font-mono uppercase text-white tracking-widest flex items-center gap-1.5">
+                                    <Mic size={12} className="text-accent-blue" />
+                                    <span>Vocal & Audio Analytics</span>
+                                  </h3>
+                                  <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-accent-blue/10 border border-accent-blue/20 text-accent-blue animate-pulse">
+                                    LIVE FEED
+                                  </span>
+                                </div>
+
+                                {/* Top Row Score and WPM */}
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Overall Score Circle */}
+                                  <div className="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex items-center gap-3">
+                                    <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path
+                                          className="text-white/5"
+                                          strokeWidth="3"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                        <path
+                                          className="text-accent-blue transition-all duration-500"
+                                          strokeDasharray={`${overallScore}, 100`}
+                                          strokeWidth="3"
+                                          strokeLinecap="round"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                      </svg>
+                                      <div className="absolute font-mono font-bold text-white text-[11px]">
+                                        {overallScore}%
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <span className="text-[9px] font-mono text-gray-500 uppercase">Overall Pacing</span>
+                                      <span className="text-white font-bold text-[13px] tracking-tight">Audio Health</span>
+                                    </div>
                                   </div>
-                                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                    <div 
-                                      className="bg-accent-blue h-full rounded-full transition-all duration-300"
-                                      style={{ width: `${Math.min(100, (audio.fillerWords / 12) * 100)}%` }}
-                                    />
+
+                                  {/* WPM Pacing Indicator */}
+                                  <div className="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col justify-center">
+                                    <div className="flex justify-between items-baseline mb-1">
+                                      <span className="text-[9px] font-mono text-gray-500 uppercase">Speaking Rate</span>
+                                      <span className="text-accent-emerald font-bold font-mono text-[13px]">{wpmValue} WPM</span>
+                                    </div>
+                                    <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden relative">
+                                      <div 
+                                        className="h-full bg-accent-emerald transition-all duration-300"
+                                        style={{ width: `${Math.min(100, (wpmValue / 220) * 100)}%` }}
+                                      />
+                                      <div className="absolute top-0 bottom-0 left-[54%] right-[32%] border-l border-r border-white/30 bg-accent-emerald/20" />
+                                    </div>
+                                    <div className="flex justify-between text-[8px] font-mono text-gray-500 mt-1">
+                                      <span>Slow (80)</span>
+                                      <span className="text-accent-emerald">Normal (120-150)</span>
+                                    </div>
                                   </div>
                                 </div>
 
-                                <div className="space-y-1.5 p-3 bg-white/[0.01] border border-white/5 rounded-xl">
-                                  <div className="flex justify-between font-mono text-[10px]">
-                                    <span>Speech velocity (WPM)</span>
-                                    <span className="font-bold text-gray-300">{isActive ? `${audio.speakingRate} WPM` : "0 WPM"}</span>
+                                {/* Main Analytics Grid */}
+                                <div className="grid grid-cols-5 gap-3">
+                                  {/* Filler Words List */}
+                                  <div className="col-span-2 bg-white/[0.01] border border-white/5 rounded-xl p-3 space-y-2">
+                                    <span className="text-[9px] font-mono font-bold text-white uppercase tracking-wider block border-b border-white/5 pb-1">
+                                      Filler Words
+                                    </span>
+                                    <div className="space-y-1.5 pt-0.5">
+                                      {[
+                                        { word: "like", count: likeCount, max: 12, color: "bg-accent-blue" },
+                                        { word: "um", count: umCount, max: 8, color: "bg-accent-blue/80" },
+                                        { word: "uh", count: uhCount, max: 5, color: "bg-accent-blue/60" },
+                                        { word: "you know", count: youKnowCount, max: 4, color: "bg-accent-blue/40" },
+                                        { word: "actually", count: actuallyCount, max: 3, color: "bg-accent-blue/20" }
+                                      ].map((item, idx) => (
+                                        <div key={idx} className="flex flex-col gap-0.5">
+                                          <div className="flex justify-between text-[9px] font-mono">
+                                            <span className="text-gray-400 capitalize">{item.word}</span>
+                                            <span className="text-white font-bold">×{item.count}</span>
+                                          </div>
+                                          <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`${item.color} h-full rounded-full transition-all duration-500`}
+                                              style={{ width: `${item.max > 0 ? (item.count / item.max) * 100 : 0}%` }}
+                                            />
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-accent-emerald h-full rounded-full" style={{ width: isActive ? `${(audio.speakingRate / 220) * 100}%` : "0%" }} />
+
+                                  {/* Metrics */}
+                                  <div className="col-span-3 bg-white/[0.01] border border-white/5 rounded-xl p-3 space-y-2.5">
+                                    <span className="text-[9px] font-mono font-bold text-white uppercase tracking-wider block border-b border-white/5 pb-1">
+                                      Vocal Metrics
+                                    </span>
+                                    <div className="space-y-2">
+                                      {[
+                                        { name: "Engagement", val: engagement, color: "bg-accent-blue" },
+                                        { name: "Truthfulness", val: truthfulness, color: "bg-accent-emerald" },
+                                        { name: "Bias Detection", val: bias, color: "bg-accent-cyan" },
+                                        { name: "Sentiment", val: sentiment, color: "bg-accent-coral" }
+                                      ].map((m, idx) => (
+                                        <div key={idx} className="space-y-0.5">
+                                          <div className="flex justify-between font-mono text-[9px]">
+                                            <span className="text-gray-400">{m.name}</span>
+                                            <span className="text-white font-bold">{m.val}%</span>
+                                          </div>
+                                          <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`${m.color} h-full rounded-full transition-all duration-300`} 
+                                              style={{ width: `${m.val}%` }} 
+                                            />
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 </div>
 
-                                <div className="space-y-1.5 p-3 bg-white/[0.01] border border-white/5 rounded-xl">
-                                  <div className="flex justify-between font-mono text-[10px]">
-                                    <span>Vocal Tension (Tone variation)</span>
-                                    <span className="font-bold text-gray-300">{isActive ? "Low (12%)" : "Standby"}</span>
-                                  </div>
-                                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-accent-blue/80 h-full rounded-full" style={{ width: isActive ? "15%" : "0%" }} />
+                                {/* Vocal frequency Spectrum */}
+                                <div className="border border-white/5 rounded-xl p-3 bg-black/40 flex flex-col items-center">
+                                  <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest mb-2">Vocal Frequency Spectrum</span>
+                                  <div className="flex gap-[3px] h-10 items-end justify-center w-full max-w-[240px]">
+                                    {[...Array(18)].map((_, i) => (
+                                      <motion.div
+                                        key={i}
+                                        animate={{ 
+                                          height: isActive && candidateState === "answering" 
+                                            ? [4, Math.max(6, Math.sin(i * 0.7) * 36), 4] 
+                                            : 4 
+                                        }}
+                                        transition={{ 
+                                          duration: 0.35 + (i % 5) * 0.07, 
+                                          repeat: Infinity, 
+                                          ease: "easeInOut" 
+                                        }}
+                                        className="w-1 bg-accent-blue/80 rounded-full"
+                                      />
+                                    ))}
                                   </div>
                                 </div>
-                              </div>
+                              </motion.div>
+                            );
+                          })()}
 
-                              {/* Interactive Audio Frequency Equalizer */}
-                              <div className="mt-4 border border-white/5 rounded-xl p-4 bg-black/40 flex flex-col items-center">
-                                <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest mb-3">Vocal Frequency Spectrum</span>
-                                <div className="flex gap-[3px] h-12 items-end justify-center w-full max-w-[200px]">
-                                  {[...Array(14)].map((_, i) => (
-                                    <motion.div
-                                      key={i}
-                                      animate={{ 
-                                        height: isActive && candidateState === "answering" 
-                                          ? [6, Math.max(8, Math.sin(i * 0.9) * 44), 6] 
-                                          : 6 
-                                      }}
-                                      transition={{ 
-                                        duration: 0.4 + (i % 4) * 0.08, 
-                                        repeat: Infinity, 
-                                        ease: "easeInOut" 
-                                      }}
-                                      className="w-1 bg-accent-blue/80 rounded-full"
-                                    />
-                                  ))}
+                          {/* 5. VIDEO ANALYTICS TAB */}
+                          {rightTab === "video" && (() => {
+                            const jitter = isActive ? Math.sin(elapsedTime * 0.35) * 1.5 : 0;
+                            const eyeContact = Math.round(82 + jitter);
+                            const facialExpression = Math.round(75 + (isActive ? Math.cos(elapsedTime * 0.4) * 2 : 0));
+                            const posture = Math.round(88 + (isActive ? Math.sin(elapsedTime * 0.3) * 1 : 0));
+                            
+                            const confident = Math.round(45 + (isActive ? Math.sin(elapsedTime * 0.5) * 2 : 0));
+                            const engaged = Math.round(30 + (isActive ? Math.cos(elapsedTime * 0.6) * 1.5 : 0));
+                            const thoughtful = Math.round(15 + (isActive ? Math.sin(elapsedTime * 0.4) * 1 : 0));
+                            const nervous = Math.max(0, Math.round(10 - (isActive ? Math.sin(elapsedTime * 0.5) * 1 : 0)));
+                            
+                            const attention = Math.round(94 + (isActive ? Math.sin(elapsedTime * 0.4) * 1 : 0));
+                            const cameraFocus = Math.round(87 + (isActive ? Math.cos(elapsedTime * 0.3) * 0.5 : 0));
+
+                            return (
+                              <motion.div
+                                key="video-tab"
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className="space-y-4 text-gray-300 text-left text-xs"
+                              >
+                                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                  <h3 className="text-[10px] font-bold font-mono uppercase text-white tracking-widest flex items-center gap-1.5">
+                                    <Video size={12} className="text-accent-blue" />
+                                    <span>Video & Visual Analytics</span>
+                                  </h3>
+                                  <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-accent-emerald/10 border border-accent-emerald/20 text-accent-emerald animate-pulse">
+                                    STREAM VERIFIED
+                                  </span>
                                 </div>
-                              </div>
-                            </motion.div>
-                          )}
+
+                                {/* Three Visual Metrics Gauges */}
+                                <div className="grid grid-cols-3 gap-3">
+                                  {/* Eye Contact */}
+                                  <div className="bg-white/[0.01] border border-white/5 rounded-xl p-2.5 flex flex-col items-center text-center">
+                                    <span className="text-[8px] font-mono text-gray-500 uppercase mb-1">Eye Contact</span>
+                                    <div className="relative w-12 h-12 flex items-center justify-center mb-1">
+                                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path
+                                          className="text-white/5"
+                                          strokeWidth="2.5"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                        <path
+                                          className="text-accent-blue transition-all duration-500"
+                                          strokeDasharray={`${eyeContact}, 100`}
+                                          strokeWidth="2.5"
+                                          strokeLinecap="round"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                      </svg>
+                                      <div className="absolute font-mono font-bold text-white text-[10px]">
+                                        {eyeContact}%
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-accent-blue">Good</span>
+                                  </div>
+
+                                  {/* Facial Expression */}
+                                  <div className="bg-white/[0.01] border border-white/5 rounded-xl p-2.5 flex flex-col items-center text-center">
+                                    <span className="text-[8px] font-mono text-gray-500 uppercase mb-1">Facial Expression</span>
+                                    <div className="relative w-12 h-12 flex items-center justify-center mb-1">
+                                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path
+                                          className="text-white/5"
+                                          strokeWidth="2.5"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                        <path
+                                          className="text-accent-cyan transition-all duration-500"
+                                          strokeDasharray={`${facialExpression}, 100`}
+                                          strokeWidth="2.5"
+                                          strokeLinecap="round"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                      </svg>
+                                      <div className="absolute font-mono font-bold text-white text-[10px]">
+                                        {facialExpression}%
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-accent-cyan">Engaged</span>
+                                  </div>
+
+                                  {/* Posture */}
+                                  <div className="bg-white/[0.01] border border-white/5 rounded-xl p-2.5 flex flex-col items-center text-center">
+                                    <span className="text-[8px] font-mono text-gray-500 uppercase mb-1">Posture</span>
+                                    <div className="relative w-12 h-12 flex items-center justify-center mb-1">
+                                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path
+                                          className="text-white/5"
+                                          strokeWidth="2.5"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                        <path
+                                          className="text-accent-emerald transition-all duration-500"
+                                          strokeDasharray={`${posture}, 100`}
+                                          strokeWidth="2.5"
+                                          strokeLinecap="round"
+                                          stroke="currentColor"
+                                          fill="none"
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                      </svg>
+                                      <div className="absolute font-mono font-bold text-white text-[10px]">
+                                        {posture}%
+                                      </div>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-accent-emerald">Excellent</span>
+                                  </div>
+                                </div>
+
+                                {/* Bottom Grid */}
+                                <div className="grid grid-cols-5 gap-3">
+                                  {/* Emotion Distribution */}
+                                  <div className="col-span-2 bg-white/[0.01] border border-white/5 rounded-xl p-3 space-y-2">
+                                    <span className="text-[9px] font-mono font-bold text-white uppercase tracking-wider block border-b border-white/5 pb-1">
+                                      Emotions
+                                    </span>
+                                    <div className="space-y-1.5 pt-0.5">
+                                      {[
+                                        { name: "Confident", val: confident, color: "bg-accent-emerald" },
+                                        { name: "Engaged", val: engaged, color: "bg-accent-cyan" },
+                                        { name: "Thoughtful", val: thoughtful, color: "bg-accent-blue" },
+                                        { name: "Nervous", val: nervous, color: "bg-accent-coral" }
+                                      ].map((item, idx) => (
+                                        <div key={idx} className="flex flex-col gap-0.5">
+                                          <div className="flex justify-between text-[9px] font-mono">
+                                            <span className="text-gray-400">{item.name}</span>
+                                            <span className="text-white font-bold">{item.val}%</span>
+                                          </div>
+                                          <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                                            <div 
+                                              className={`${item.color} h-full rounded-full transition-all duration-300`}
+                                              style={{ width: `${item.val}%` }}
+                                            />
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Attention and Diagnostic stream */}
+                                  <div className="col-span-3 bg-white/[0.01] border border-white/5 rounded-xl p-3 space-y-2.5">
+                                    <span className="text-[9px] font-mono font-bold text-white uppercase tracking-wider block border-b border-white/5 pb-1">
+                                      Attention & Focus
+                                    </span>
+                                    <div className="space-y-2">
+                                      <div className="space-y-0.5">
+                                        <div className="flex justify-between font-mono text-[9px]">
+                                          <span className="text-gray-400">Attention Analysis</span>
+                                          <span className="text-white font-bold">{attention}%</span>
+                                        </div>
+                                        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                          <div className="bg-accent-blue h-full rounded-full" style={{ width: `${attention}%` }} />
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-0.5">
+                                        <div className="flex justify-between font-mono text-[9px]">
+                                          <span className="text-gray-400">Camera Focus</span>
+                                          <span className="text-white font-bold">{cameraFocus}%</span>
+                                        </div>
+                                        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                                          <div className="bg-accent-cyan h-full rounded-full" style={{ width: `${cameraFocus}%` }} />
+                                        </div>
+                                      </div>
+
+                                      <div className="flex justify-between items-center text-[9px] font-mono pt-1">
+                                        <span className="text-gray-400">Screen Time</span>
+                                        <span className="text-accent-emerald font-bold">98.4% active</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Background Analysis Section */}
+                                <div className="bg-white/[0.01] border border-white/5 rounded-xl p-3 space-y-1.5">
+                                  <span className="text-[9px] font-mono font-bold text-white uppercase tracking-wider block border-b border-white/5 pb-1">
+                                    Background Analytics
+                                  </span>
+                                  <div className="flex flex-col gap-1.5 pt-0.5">
+                                    <div className="flex items-center gap-2 text-accent-emerald text-[9px] font-mono">
+                                      <CheckCircle2 size={11} className="shrink-0 text-accent-emerald" />
+                                      <span>Professional setting detected</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-accent-emerald text-[9px] font-mono">
+                                      <CheckCircle2 size={11} className="shrink-0 text-accent-emerald" />
+                                      <span>Good lighting conditions</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })()}
 
                         </AnimatePresence>
                       </div>
