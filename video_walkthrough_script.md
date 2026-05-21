@@ -1,53 +1,89 @@
 # Video Walkthrough Script: HumAIn (Zai) Submission
 
 **Target Length:** 3–5 minutes  
-**Software to use:** Loom, Zoom, or OBS  
-**Preparation:** Open your browser to the local website ([http://localhost:3000](http://localhost:3000)) and have the code editor open in the background.
+**Presenter:** Nikhil Enjirapu  
+**Software to Use:** Loom, Zoom, or OBS  
+**Preparation:** Open your browser to the local website (e.g. `http://localhost:3000/workspace/interviews`) and have the app running in the background.
 
 ---
 
-## Part 1: Introduction (0:00 - 0:45)
-* **What to Show on Screen:** The top Hero section of the live website, with the dynamic voice waves and face mesh scanning.
-* **What to Say:**
-  > *"Hello! My name is [Your Name], and today I am thrilled to present my submission for the HumAIn and Zai platform interface assignment. 
-  > 
-  > HumAIn is a multi-modal digital workforce platform, and Zai is their first product—an AI recruiter that joins interview calls, analyzes candidates in real-time, and compiles un-gameable technical evaluation dossiers. 
-  > 
-  > I chose to build a fully interactive, production-grade Next.js and Tailwind CSS website that simulates a live interview session to show Zai's power in action, rather than submitting a static mock-up page."*
+## Part 1 – Introduction (0:00–0:40)
+
+**Screen:** Show the Interviews Command Center Dashboard (`/workspace/interviews`) or the homepage.
+
+**What to say:**
+
+“Hello, my name is Nikhil Enjirapu, and this is my walkthrough for the HumAIn and Zai product design assignment.
+
+HumAIns are AGI-level digital teammates that can join enterprise conversations, understand context, and execute work, and Zai is their first product – an AI recruiter that joins interviews and helps evaluate candidates in real time.
+
+For this assignment, I designed and developed the HumAIn workspace to present Zai as a distinct, premium product, and to clearly explain how it is positioned differently from existing hiring tools by building a fully interactive Next.js simulation.”
 
 ---
 
-## Part 2: Competitor Rationale & Insights (0:45 - 1:30)
-* **What to Show on Screen:** Scroll down to the **"How Zai Redefines Evaluation"** feature comparison table and the **"Engineered for Modern Teams"** use cases grid.
-* **What to Say:**
-  > *"Before coding the page, I researched the recruitment tech landscape. Current platforms fall into two flawed groups: traditional ATS like Greenhouse, which rely on easily-gamed keyword matching, and one-way video screeners like HireVue, which feel impersonal and suffer from proxy-interview fraud.
-  > 
-  > Zai shifts the paradigm. It is positioned as a secure, real-time assessment teammate. It verifies logical integrity under pressure using capillary oximetry (PPG), speech hesitancy tracking, and facial mesh scans. 
-  > 
-  > To reflect this high-security, intelligent environment, I designed the interface with a sleek dark theme, utilizing deep space black, emerald security badges, cyan logic glows, and coral accents for human biological data."*
+## Part 2 – Competitor Rationale & Insights (0:40–1:20)
+
+**Screen:** Scroll through the metric cards and the completed sessions database on the interviews dashboard.
+
+**What to say:**
+
+“Before designing the site, I studied several competitors in the recruiting tech space, including platforms like HireVue, Spark Hire, Metaview, Talview, interviewing.io, and myInterview.
+
+Across these tools, I noticed clear patterns. Traditional ATS-style products focus heavily on administrative workflow and resume parsing. One-way video tools emphasize automation and volume but feel transactional and impersonal to candidates. Other platforms focus purely on transcription notes.
+
+What I did not see was a focus on deep, multimodal intelligence during live calls – combining what candidates say with how they behave and how composed they are in real time. That gap is where I decided to position Zai.”
 
 ---
 
-## Part 3: Live Simulation Walkthrough (1:30 - 3:00)
-* **What to Show on Screen:** Click **"Play"** on the floating bottom controller widget. Scroll up to show the Hero scanning, then down to show the **Interactive Dashboard** tabs (Audio -> Health -> Biometrics) updating, and finally show the **Speaker Timeline** hover boxes.
-* **What to Say:**
-  > *"Let's see Zai in action. By hitting play on our floating simulation controller, the page goes live. 
-  > 
-  > First, the candidate's video feed verifies biological liveness. 
-  > 
-  > If we look at the Interactive Dashboard under 'Health Metrics', we can see a live-scrolling PPG chart recording heart rate variations, stress levels, and blood oxygen levels in real-time. 
-  > 
-  > Under the 'Biometrics' tab, we see a dynamic coordinate mesh that tracks candidate movement—I've engineered this mesh to warp reactively to mouse cursor positions. 
-  > 
-  > Further down, the 'Speaker Timeline' maps diarized text segments of the call. Hovering over segment flags opens custom biometric tooltips explaining stress spikes during tough technical questions, like database locks."*
+## Part 3 – Zai’s Positioning and USP (1:20–2:00)
+
+**Screen:** Click on the candidate "Alex Chen" or click "Join Telemetry" to open the Live Telemetry Feed.
+
+**What to say:**
+
+“Based on this research, I positioned Zai as a real-time AI assessment teammate rather than just a workflow utility.
+
+Instead of focusing on 'faster resume sorting,' the workspace UI emphasizes three key layers:
+1. **Interview Integrity:** Verifying who is in the call via live verification and pattern matching.
+2. **Cognitive Composure:** Observing how candidates reason and communicate under pressure.
+3. **Instant Structured Outputs:** Generating objective candidate scorecards immediately after the interview.
+
+Let me walk you through the interface decisions that bring this positioning to life.”
 
 ---
 
-## Part 4: Auto-Generated Dossier & Tech Stack (3:00 - 4:00)
-* **What to Show on Screen:** Click **"Compile Dossier"** (or step 4) on the controller. Show the typewriter animation loading the final text dossier under **"Autogenerated Assessment"**.
-* **What to Say:**
-  > *"Once the interview finishes, Zai compiles an assessment dossier. As you can see, the overall fit score dial animates, and the AI candidate review types itself out character-by-character using a custom typewriter effect.
-  > 
-  > On the technology side, this is built using Next.js App Router, Tailwind CSS, and Framer Motion for smooth, high-fidelity micro-interactions.
-  > 
-  > By combining competitor research with a fully functional state machine, this landing page proves that recruiters can rely on Zai for fast, un-gameable hiring decisions. Thank you so much for your time!"*
+## Part 4 – Interface Walkthrough & Design Decisions (2:00–3:45)
+
+**Screen:** Walk through the interactive panels on the screen as you describe them.
+
+**What to say:**
+
+“To distinguish Zai from generic HR tools, I adopted a high-fidelity 'mission-control' telemetry interface using a deep space black background to communicate security and precision.
+
+Here in the **Live Telemetry Feed**:
+- On the left is the AI Recruiter video stream alongside the candidate's camera feed and the active developer sandbox code console.
+- In the right-hand panel, we can inspect real-time biometrics: the **Health Metrics** tab shows live scrolling PPG oximetry, heart rate, and stress curves.
+- The new **Audio Analytics** and **Video Analytics** tabs show key communication signals, such as speaking rate, posture, filler word frequency, and eye contact.
+
+If we transition to the **AI Dossier**:
+- We see the autogenerated assessment details, where Zai's candidate review types itself out dynamically on compilation.
+
+Finally, in the **System Settings & Calibration Cockpit**:
+- Users can switch AI recruiter personas—from Zai to Veda or Kaelen—calibrating latency variables and running audio diagnostics.
+- Clicking 'Test Audio Input' generates real-time frequency-spectrum canvas animations.
+
+We also implemented state-preserving dynamic URLs (`/workspace/interviews`, `/workspace/telemetry`, `/workspace/settings`), ensuring that navigating between tabs updates the URL bar instantly while keeping the active WebRTC stream simulation alive.”
+
+---
+
+## Part 5 – Closing & Reflection (3:45–4:15)
+
+**Screen:** Return to the interviews dashboard or the main screen.
+
+**What to say:**
+
+“Overall, the goal of this design is to help a recruiter immediately see why Zai is a premium assessment layer, and to visually prepare them for a broader HumAIn ecosystem of digital teammates.
+
+By combining competitor positioning with a fully interactive Next.js application, this prototype demonstrates both design intent and technical execution. 
+
+Thank you so much for watching.”
