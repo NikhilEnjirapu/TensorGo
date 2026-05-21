@@ -93,6 +93,127 @@ const STRESS_REPLY_TRANSCRIPT: TimelineEvent = {
   type: "success"
 };
 
+interface LiveCandidate {
+  id: string;
+  name: string;
+  role: string;
+  sessionCode: string;
+  initials: string;
+  avatarColor: string;
+  email: string;
+}
+
+interface CandidateDossier {
+  name: string;
+  role: string;
+  sessionCode: string;
+  date: string;
+  systemsCompetence: number;
+  composureIndex: number;
+  speechProsody: number;
+  summaryText: string;
+  recommendText: string;
+}
+
+const LIVE_CANDIDATES: LiveCandidate[] = [
+  {
+    id: "alex-chen",
+    name: "Alex Chen",
+    role: "Systems Engineer",
+    sessionCode: "ZAI-9092",
+    initials: "AC",
+    avatarColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    email: "alex.chen@tensorgo.com"
+  },
+  {
+    id: "sophia-rodriguez",
+    name: "Sophia Rodriguez",
+    role: "AI Research Lead",
+    sessionCode: "ZAI-8831",
+    initials: "SR",
+    avatarColor: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    email: "sophia.rod@tensorgo.com"
+  },
+  {
+    id: "david-kim",
+    name: "David Kim",
+    role: "Fullstack Engineer",
+    sessionCode: "ZAI-8199",
+    initials: "DK",
+    avatarColor: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+    email: "david.kim@tensorgo.com"
+  }
+];
+
+const CANDIDATE_DOSSIERS: Record<string, CandidateDossier> = {
+  "alex-chen": {
+    name: "Alex Chen",
+    role: "Systems Engineer",
+    sessionCode: "ZAI-9092",
+    date: "21 May 2026",
+    systemsCompetence: 9.2,
+    composureIndex: 8.5,
+    speechProsody: 8.8,
+    summaryText: "Alex demonstrated strong system architecture logic under structural probing. Answered connection pooling & PG replica queries perfectly. Composure index stabilized rapidly after temporary cardiac spikes (98 BPM logged during PostgreSQL deadlock prompt injection). Vocal pacing average: 134 WPM. Filler words frequency remained within standard bands (only 2 instances logged).",
+    recommendText: "Strong hire. Candidate demonstrates architectural familiarity with high-concurrency connection limitations and recovers well under deadlock stress triggers."
+  },
+  "marcus-vance": {
+    name: "Marcus Vance",
+    role: "Backend Engineer",
+    sessionCode: "ZAI-8722",
+    date: "20 May 2026",
+    systemsCompetence: 8.4,
+    composureIndex: 7.9,
+    speechProsody: 8.2,
+    summaryText: "Marcus showed solid API design fundamentals, though database scaling concepts were slightly surface-level. Composure index dipped under edge-case concurrency queries, but recovered. Vocal pace was steady at 120 WPM, with minor filler words.",
+    recommendText: "Leaning hire. Strong coder with good implementation speed. Needs minor mentorship on distributed state management."
+  },
+  "elena-rostova": {
+    name: "Elena Rostova",
+    role: "Machine Learning Engineer",
+    sessionCode: "ZAI-7649",
+    date: "19 May 2026",
+    systemsCompetence: 9.5,
+    composureIndex: 9.1,
+    speechProsody: 9.0,
+    summaryText: "Elena exhibited masterful grasp of distributed transformer architectures and model parallelism shards. Composure remained exceptionally stable under complex mathematical stress injectors. Speech structure was articulate, pacing 128 WPM.",
+    recommendText: "Strong hire. Exceptional technical depth in model deployment and cluster orchestrations under load."
+  },
+  "jordan-brooks": {
+    name: "Jordan Brooks",
+    role: "Product Manager",
+    sessionCode: "ZAI-6211",
+    date: "18 May 2026",
+    systemsCompetence: 7.8,
+    composureIndex: 8.8,
+    speechProsody: 9.5,
+    summaryText: "Jordan communicated system prioritization and product-focused constraints flawlessly. Technical depth was sufficient for high-level trade-offs, though hands-on pool optimization logic was skipped. High vocal confidence, 0 filler words, 140 WPM pacing.",
+    recommendText: "Hire. Excellent communicator who bridges systems engineering and stakeholder priorities. Good under high cognitive stress."
+  },
+  "sarah-jenkins": {
+    name: "Sarah Jenkins",
+    role: "Security Architect",
+    sessionCode: "ZAI-5512",
+    date: "17 May 2026",
+    systemsCompetence: 9.0,
+    composureIndex: 9.4,
+    speechProsody: 8.7,
+    summaryText: "Sarah highlighted robust threat models for pool routing, PostgreSQL permission hierarchies, and replica SSL parameters. Responded to network hijack simulation prompts with highly composed, detailed mitigation steps. Tone remained calm and professional.",
+    recommendText: "Strong hire. Deep systems security knowledge, highly calm under emergency response scenarios."
+  },
+  "hiroshi-tanaka": {
+    name: "Hiroshi Tanaka",
+    role: "DevOps Engineer",
+    sessionCode: "ZAI-4322",
+    date: "16 May 2026",
+    systemsCompetence: 8.8,
+    composureIndex: 8.2,
+    speechProsody: 8.1,
+    summaryText: "Hiroshi excelled at configuring PgBouncer config limits, Prometheus alert rules, and automated failovers. Stress index increased moderately during disk IOPS exhaustion injection, but recovered. Verbal presentation was brief but highly factual.",
+    recommendText: "Hire. Reliable systems automation focus with solid operational execution under node pressure."
+  }
+};
+
 function WorkspaceContent() {
   const {
     isActive,
@@ -110,7 +231,34 @@ function WorkspaceContent() {
   } = useSimulation();
 
   // Navigation tab for sidebar
-  const [activeTab, setActiveTab] = useState<"workspace" | "dossier">("workspace");
+  const [activeTab, setActiveTab] = useState<"workspace" | "dossier" | "dashboard">("dashboard");
+
+  // selected candidate dossier id
+  const [selectedDossierCandidate, setSelectedDossierCandidate] = useState<string>("alex-chen");
+
+  // selected live candidate
+  const [selectedLiveCandidate, setSelectedLiveCandidate] = useState<LiveCandidate>(LIVE_CANDIDATES[0]);
+
+  // Search & filter states for completed list
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
+
+  const completedSessions = [
+    { id: "alex-chen", name: "Alex Chen", role: "Systems Engineer", department: "Systems Design", date: "21 May 2026", composure: 8.5, techRating: 9.2, liveness: 99.4, initials: "AC" },
+    { id: "marcus-vance", name: "Marcus Vance", role: "Backend Engineer", department: "Software Engineering", date: "20 May 2026", composure: 7.9, techRating: 8.4, liveness: 99.2, initials: "MV" },
+    { id: "elena-rostova", name: "Elena Rostova", role: "Machine Learning Engineer", department: "Software Engineering", date: "19 May 2026", composure: 9.1, techRating: 9.5, liveness: 99.8, initials: "ER" },
+    { id: "jordan-brooks", name: "Jordan Brooks", role: "Product Manager", department: "Product Management", date: "18 May 2026", composure: 8.8, techRating: 7.8, liveness: 99.1, initials: "JB" },
+    { id: "sarah-jenkins", name: "Sarah Jenkins", role: "Security Architect", department: "Systems Design", date: "17 May 2026", composure: 9.4, techRating: 9.0, liveness: 99.6, initials: "SJ" },
+    { id: "hiroshi-tanaka", name: "Hiroshi Tanaka", role: "DevOps Engineer", department: "Systems Design", date: "16 May 2026", composure: 8.2, techRating: 8.8, liveness: 99.5, initials: "HT" }
+  ];
+
+  const filteredSessions = completedSessions.filter(session => {
+    const matchesSearch = session.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          session.role.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = roleFilter === "All" || session.department === roleFilter;
+    return matchesSearch && matchesFilter;
+  });
+
 
   // Left Column Tabs: video or code sandbox
   const [leftTab, setLeftTab] = useState<"video" | "code">("video");
@@ -124,6 +272,11 @@ function WorkspaceContent() {
   // Email state for candidate biometrics
   const [emailInput, setEmailInput] = useState("alex.chen@tensorgo.com");
   const [isVerified, setIsVerified] = useState(true);
+
+  // Sync email input when selected live candidate changes
+  useEffect(() => {
+    setEmailInput(selectedLiveCandidate.email);
+  }, [selectedLiveCandidate]);
 
   // Code editor states
   const [code, setCode] = useState(CODING_PROMPT);
@@ -313,6 +466,24 @@ function WorkspaceContent() {
             </Link>
 
             <button 
+              onClick={() => setActiveTab("dashboard")}
+              className={`p-3 rounded-xl transition-all cursor-pointer relative group ${
+                activeTab === "dashboard"
+                  ? "text-white bg-white/10 border border-white/10 shadow-lg shadow-black/40"
+                  : "text-gray-500 hover:text-white hover:bg-white/5"
+              }`}
+              title="Interviews Dashboard"
+            >
+              <BarChart2 size={20} />
+              {activeTab === "dashboard" && (
+                <span className="absolute right-0 top-1/3 bottom-1/3 w-1 bg-accent-blue rounded-full" />
+              )}
+              <span className="absolute left-24 bg-black/90 text-white text-[9px] font-mono py-1 px-2 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+                Interviews Dashboard
+              </span>
+            </button>
+
+            <button 
               onClick={() => {
                 setActiveTab("workspace");
                 setLeftTab("video");
@@ -397,26 +568,68 @@ function WorkspaceContent() {
             >
               <ArrowLeft size={16} />
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-slate-900 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300">
-                AC
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-sm font-bold text-white tracking-tight">Alex Chen</h1>
-                  <span className="text-[9px] font-mono font-bold text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Systems Engineer
-                  </span>
+            {activeTab === "dashboard" ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-650/10 border border-indigo-500/30 overflow-hidden flex items-center justify-center text-xs font-bold text-accent-blue shadow-inner">
+                  <BarChart2 size={18} className="text-accent-blue animate-pulse" />
                 </div>
-                <div className="flex items-center gap-2 mt-0.5 text-[9.5px] text-gray-400 font-mono">
-                  <span>Session Code: ZAI-9092</span>
-                  <span className="text-gray-600">|</span>
-                  <span>21 May 2026</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse shrink-0" />
-                  <span className="text-[8px] text-accent-emerald font-bold tracking-widest uppercase">Live telemetry active</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm font-bold text-white tracking-tight">Interviews Command Center</h1>
+                    <span className="text-[9px] font-mono font-bold text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Recruiter Portal
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-[9.5px] text-gray-400 font-mono">
+                    <span>Active Live Streams: 3</span>
+                    <span className="text-gray-600">|</span>
+                    <span>21 May 2026</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse shrink-0" />
+                    <span className="text-[8px] text-accent-emerald font-bold tracking-widest uppercase">System Operational</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : activeTab === "workspace" ? (
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full ${selectedLiveCandidate.avatarColor} border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold`}>
+                  {selectedLiveCandidate.initials}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm font-bold text-white tracking-tight">{selectedLiveCandidate.name}</h1>
+                    <span className="text-[9px] font-mono font-bold text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {selectedLiveCandidate.role}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-[9.5px] text-gray-400 font-mono">
+                    <span>Session Code: {selectedLiveCandidate.sessionCode}</span>
+                    <span className="text-gray-600">|</span>
+                    <span>21 May 2026</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse shrink-0" />
+                    <span className="text-[8px] text-accent-emerald font-bold tracking-widest uppercase">Live telemetry active</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-905 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300">
+                  {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.name.split(" ").map(n => n[0]).join("") || "AC"}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm font-bold text-white tracking-tight">{CANDIDATE_DOSSIERS[selectedDossierCandidate]?.name || "Alex Chen"}</h1>
+                    <span className="text-[9px] font-mono font-bold text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.role || "Systems Engineer"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-[9.5px] text-gray-400 font-mono">
+                    <span>Session Code: {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.sessionCode || "ZAI-9092"}</span>
+                    <span className="text-gray-600">|</span>
+                    <span>Evaluation Compiled</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2.5">
@@ -435,7 +648,296 @@ function WorkspaceContent() {
         <div className="flex-grow flex flex-col min-h-0 relative">
           
           <AnimatePresence mode="wait">
-            {activeTab === "workspace" ? (
+            {activeTab === "dashboard" ? (
+              <motion.div
+                key="dashboard-view"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 w-full space-y-8 text-left"
+              >
+                {/* 1. KPI cards row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Total Conducted */}
+                  <div className="glass-card rounded-2xl border border-white/10 bg-black/40 p-5 shadow-lg flex items-center justify-between hover:scale-[1.02] hover:border-white/20 transition-all duration-300">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Total Conducted</span>
+                      <div className="text-3xl font-extrabold text-white font-mono">342</div>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[9px] bg-accent-emerald/15 text-accent-emerald font-bold font-mono px-1.5 py-0.5 rounded">▲ 3.6%</span>
+                        <span className="text-[9px] text-gray-500 font-mono">vs last week</span>
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-700/5 border border-indigo-500/30 flex items-center justify-center text-accent-blue shadow-lg shadow-indigo-500/5">
+                      <Briefcase size={22} />
+                    </div>
+                  </div>
+
+                  {/* Live Active */}
+                  <div className="glass-card rounded-2xl border border-white/10 bg-black/40 p-5 shadow-lg flex items-center justify-between hover:scale-[1.02] hover:border-white/20 transition-all duration-300">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Active Live</span>
+                      <div className="text-3xl font-extrabold text-white font-mono flex items-center gap-2">
+                        3
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-coral opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-coral"></span>
+                        </span>
+                      </div>
+                      <div className="text-[9.5px] text-gray-500 font-mono mt-1 flex items-center gap-1">
+                        <span>Real-time biometric streams</span>
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/20 to-rose-700/5 border border-rose-500/30 flex items-center justify-center text-accent-coral shadow-lg shadow-rose-500/5 animate-pulse">
+                      <Video size={22} />
+                    </div>
+                  </div>
+
+                  {/* Completed Done */}
+                  <div className="glass-card rounded-2xl border border-white/10 bg-black/40 p-5 shadow-lg flex items-center justify-between hover:scale-[1.02] hover:border-white/20 transition-all duration-300">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Completed Done</span>
+                      <div className="text-3xl font-extrabold text-white font-mono">339</div>
+                      <div className="flex items-center gap-1 mt-1 text-[9.5px] text-gray-500 font-mono">
+                        <CheckCircle2 size={12} className="text-accent-emerald inline" />
+                        <span>100% parsed by Zai AI</span>
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/5 border border-emerald-500/30 flex items-center justify-center text-accent-emerald shadow-lg shadow-emerald-500/5">
+                      <CheckCircle2 size={22} />
+                    </div>
+                  </div>
+
+                  {/* Average Score */}
+                  <div className="glass-card rounded-2xl border border-white/10 bg-black/40 p-5 shadow-lg flex items-center justify-between hover:scale-[1.02] hover:border-white/20 transition-all duration-300">
+                    <div className="space-y-1 w-[70%]">
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider block">Average Composure</span>
+                      <div className="text-3xl font-extrabold text-white font-mono">8.4<span className="text-xs text-gray-500 font-normal"> / 10</span></div>
+                      <div className="w-full bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div className="bg-accent-amber h-full w-[84%] rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-700/5 border border-amber-500/30 flex items-center justify-center text-accent-amber shadow-lg shadow-amber-500/5">
+                      <Sparkles size={22} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Main Columns layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  
+                  {/* Left Column: Live Monitor Cards (lg:col-span-1) */}
+                  <div className="space-y-4 lg:col-span-1">
+                    <div className="flex items-center justify-between pb-1 select-none">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-accent-coral animate-ping" />
+                        <h2 className="text-xs font-mono font-bold tracking-widest text-gray-400 uppercase">Live Monitor Feeds</h2>
+                      </div>
+                      <span className="text-[9.5px] font-mono text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full">3 Active</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {LIVE_CANDIDATES.map((candidate) => {
+                        const isSelected = selectedLiveCandidate.id === candidate.id;
+                        
+                        // Real-time ticking indicators
+                        const currentHr = candidate.id === "alex-chen" && isActive 
+                          ? (isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? 98 + Math.floor(Math.sin(elapsedTime) * 3) : biometrics.heartRate)
+                          : candidate.id === "sophia-rodriguez"
+                            ? 82 + Math.floor(Math.sin(elapsedTime * 0.5) * 2)
+                            : 74 + Math.floor(Math.cos(elapsedTime * 0.4) * 2);
+
+                        const currentStress = candidate.id === "alex-chen" && isActive 
+                          ? (isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? 84 : biometrics.stressIndex)
+                          : candidate.id === "sophia-rodriguez"
+                            ? 31 + Math.floor(Math.sin(elapsedTime * 0.3) * 3)
+                            : 24 + Math.floor(Math.cos(elapsedTime * 0.2) * 2);
+                        
+                        return (
+                          <div 
+                            key={candidate.id}
+                            className={`glass-card border rounded-2xl bg-[#0c0d12]/40 p-5 space-y-4 transition-all duration-300 ${
+                              isSelected 
+                                ? "border-accent-blue/40 shadow-[0_0_20px_rgba(59,130,246,0.06)]"
+                                : "border-white/10 hover:border-white/20"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-full ${candidate.avatarColor} border border-white/5 flex items-center justify-center text-xs font-bold font-mono`}>
+                                  {candidate.initials}
+                                </div>
+                                <div>
+                                  <h3 className="text-xs font-bold text-white tracking-tight">{candidate.name}</h3>
+                                  <p className="text-[9px] text-gray-500 font-mono mt-0.5">{candidate.role}</p>
+                                </div>
+                              </div>
+                              <span className="text-[8px] font-mono font-semibold tracking-wider text-accent-cyan bg-accent-cyan/5 border border-accent-cyan/10 px-2 py-0.5 rounded">
+                                {candidate.sessionCode}
+                              </span>
+                            </div>
+
+                            {/* Biometric spark values */}
+                            <div className="grid grid-cols-2 gap-3 pt-1 text-[10px] font-mono border-t border-white/5 text-gray-400">
+                              <div className="flex items-center gap-1.5">
+                                <Heart size={12} className="text-accent-coral animate-pulse" />
+                                <div>
+                                  <span className="text-gray-500 block text-[8px] uppercase">Heart Rate</span>
+                                  <span className="text-white font-bold text-[11px]">{currentHr} BPM</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Activity size={12} className="text-accent-cyan" />
+                                <div>
+                                  <span className="text-gray-500 block text-[8px] uppercase">Stress Index</span>
+                                  <span className="text-white font-bold text-[11px]">{currentStress}%</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <button
+                              onClick={() => {
+                                setSelectedLiveCandidate(candidate);
+                                setActiveTab("workspace");
+                                setLeftTab("video");
+                              }}
+                              className="w-full py-2 bg-accent-blue/10 hover:bg-accent-blue text-accent-blue hover:text-white rounded-xl text-[10px] font-bold font-mono tracking-widest uppercase border border-accent-blue/20 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-blue-500/5"
+                            >
+                              <Zap size={11} className="animate-pulse" />
+                              <span>Join Telemetry</span>
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Completed Assessments Table (lg:col-span-2) */}
+                  <div className="space-y-4 lg:col-span-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 select-none">
+                      <h2 className="text-xs font-mono font-bold tracking-widest text-gray-400 uppercase">Completed Assessments Logs</h2>
+                      
+                      {/* Search and Filters inside table header */}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                          <input
+                            type="text"
+                            placeholder="Search logs..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 focus:border-accent-blue/40 rounded-xl px-3 py-1.5 pl-8 text-[10px] focus:outline-none font-mono text-white placeholder-gray-500 transition-colors"
+                          />
+                          <Search size={11} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Department Tabs */}
+                    <div className="flex border-b border-white/5 gap-4 overflow-x-auto pb-2 text-[10px] font-bold font-mono scrollbar-none">
+                      {["All", "Software Engineering", "Systems Design", "Product Management"].map((dept) => (
+                        <button
+                          key={dept}
+                          onClick={() => setRoleFilter(dept)}
+                          className={`pb-1 uppercase tracking-wider transition-colors cursor-pointer border-b-2 whitespace-nowrap ${
+                            roleFilter === dept
+                              ? "text-accent-blue border-accent-blue text-glow-blue"
+                              : "border-transparent text-gray-500 hover:text-gray-300"
+                          }`}
+                        >
+                          {dept}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Table database logs container */}
+                    <div className="glass-card border border-white/10 rounded-2xl bg-[#0c0d12]/40 overflow-hidden shadow-2xl">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="border-b border-white/10 bg-black/25 text-[9px] font-mono text-gray-500 tracking-wider uppercase select-none">
+                              <th className="py-3 px-4 font-semibold">Candidate</th>
+                              <th className="py-3 px-4 font-semibold">Role</th>
+                              <th className="py-3 px-4 font-semibold">Date</th>
+                              <th className="py-3 px-4 font-semibold text-center">Composure</th>
+                              <th className="py-3 px-4 font-semibold text-center">Tech Rating</th>
+                              <th className="py-3 px-4 font-semibold text-center">Liveness</th>
+                              <th className="py-3 px-4 font-semibold text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 text-[11px] font-mono text-gray-300">
+                            {filteredSessions.length > 0 ? (
+                              filteredSessions.map((session) => (
+                                <tr key={session.id} className="hover:bg-white/[0.015] transition-colors group">
+                                  <td className="py-3.5 px-4">
+                                    <div className="flex items-center gap-2.5">
+                                      <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[9px] font-bold text-gray-400">
+                                        {session.initials}
+                                      </div>
+                                      <span className="font-bold text-white group-hover:text-accent-blue transition-colors">{session.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-gray-400">{session.role}</td>
+                                  <td className="py-3.5 px-4 text-[10px] text-gray-500">{session.date}</td>
+                                  <td className="py-3.5 px-4 text-center font-bold">
+                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] ${
+                                      session.composure >= 9.0 
+                                        ? "bg-accent-emerald/10 text-accent-emerald" 
+                                        : session.composure >= 8.0 
+                                          ? "bg-accent-cyan/10 text-accent-cyan" 
+                                          : "bg-accent-amber/10 text-accent-amber"
+                                    }`}>
+                                      {session.composure.toFixed(1)}/10
+                                    </span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-center font-bold">
+                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] ${
+                                      session.techRating >= 9.0 
+                                        ? "bg-accent-emerald/10 text-accent-emerald" 
+                                        : session.techRating >= 8.0 
+                                          ? "bg-accent-cyan/10 text-accent-cyan" 
+                                          : "bg-accent-amber/10 text-accent-amber"
+                                    }`}>
+                                      {session.techRating.toFixed(1)}/10
+                                    </span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-center text-accent-emerald text-[9px]">
+                                    <span className="flex items-center justify-center gap-1.5 font-bold">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse inline-block" />
+                                      {session.liveness.toFixed(1)}%
+                                    </span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-right">
+                                    <button
+                                      onClick={() => {
+                                        setSelectedDossierCandidate(session.id);
+                                        setActiveTab("dossier");
+                                      }}
+                                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 transition-all text-[9.5px] font-bold cursor-pointer inline-flex items-center gap-1"
+                                    >
+                                      <span>View Dossier</span>
+                                      <ExternalLink size={10} />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={7} className="py-10 text-center text-gray-500 font-mono text-[10px]">
+                                  No finished assessments found matching the filters.
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </motion.div>
+            ) : activeTab === "workspace" ? (
               <motion.div
                 key="workspace-view"
                 initial={{ opacity: 0, y: 10 }}
@@ -625,7 +1127,7 @@ function WorkspaceContent() {
 
                                 <div className="absolute bottom-2 left-2 bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-lg text-[7.5px] text-white font-mono flex items-center gap-1.5 border border-white/5 shadow shadow-black/80">
                                   <span className={`w-1 h-1 rounded-full ${candidateState === "answering" ? "bg-accent-coral animate-ping" : "bg-gray-500"}`} />
-                                  <span>Alex Chen (Candidate)</span>
+                                  <span>{selectedLiveCandidate.name} (Candidate)</span>
                                 </div>
                               </div>
                             </motion.div>
@@ -1303,7 +1805,7 @@ function WorkspaceContent() {
                                         <span>1. Systems Engineering Assessment</span>
                                       </h4>
                                       <p className="text-gray-400">
-                                        Alex Chen presented clear core knowledge of database deadlocks, showing hands-on pgBouncer connection architectures and primary/replica split middleware logic.
+                                        {selectedLiveCandidate.name} presented clear core knowledge of database deadlocks, showing hands-on pgBouncer connection architectures and primary/replica split middleware logic.
                                       </p>
                                     </div>
                                     <div className="p-3 bg-white/[0.01] border border-white/5 rounded-xl">
@@ -1429,18 +1931,32 @@ function WorkspaceContent() {
                         Evaluation Dossier
                       </span>
                       <h1 className="text-2xl font-black tracking-tight text-white mt-4">
-                        Alex Chen Dossier Profile
+                        {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.name || "Alex Chen"} Dossier Profile
                       </h1>
                       <p className="text-[10px] text-gray-500 font-mono mt-1">
-                        Compiled dynamically by Zai AI Interviewer node-us-east-eval
+                        Compiled dynamically by Zai AI Interviewer node-us-east-eval | Session: {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.sessionCode || "ZAI-9092"}
                       </p>
                     </div>
-                    <button
-                      onClick={() => setActiveTab("workspace")}
-                      className="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 text-xs font-bold rounded-xl transition-all cursor-pointer shadow"
-                    >
-                      Return to Workspace
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setActiveTab("dashboard")}
+                        className="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 text-xs font-bold rounded-xl transition-all cursor-pointer shadow"
+                      >
+                        Return to Dashboard
+                      </button>
+                      <button
+                        onClick={() => {
+                          const liveMatch = LIVE_CANDIDATES.find(lc => lc.id === selectedDossierCandidate);
+                          if (liveMatch) {
+                            setSelectedLiveCandidate(liveMatch);
+                          }
+                          setActiveTab("workspace");
+                        }}
+                        className="px-4 py-2 bg-accent-blue text-white hover:bg-blue-650 text-xs font-bold rounded-xl transition-all border border-blue-400/20 shadow cursor-pointer"
+                      >
+                        Join Workspace
+                      </button>
+                    </div>
                   </div>
 
                   {/* Rating parameters grids */}
@@ -1448,30 +1964,30 @@ function WorkspaceContent() {
                     <div className="glass-card rounded-2xl p-6 border-white/10 bg-black/40 text-left space-y-3">
                       <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest block">Systems Competence</span>
                       <div className="text-4xl font-extrabold text-white font-mono">
-                        9.2 <span className="text-xs text-gray-500 font-normal">/ 10</span>
+                        {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.systemsCompetence || 9.2} <span className="text-xs text-gray-500 font-normal">/ 10</span>
                       </div>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Alex demonstrated strong system architecture logic under structural probing. Answered connection pooling & PG replica queries perfectly.
+                        Evaluated under system architectural trade-offs, deadlock simulations, and connection pooling correctness metrics.
                       </p>
                     </div>
 
                     <div className="glass-card rounded-2xl p-6 border-white/10 bg-black/40 text-left space-y-3">
                       <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest block">Composure index</span>
                       <div className="text-4xl font-extrabold text-accent-cyan font-mono">
-                        8.5 <span className="text-xs text-gray-500 font-normal">/ 10</span>
+                        {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.composureIndex || 8.5} <span className="text-xs text-gray-500 font-normal">/ 10</span>
                       </div>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Composure index stabilized rapidly after temporary cardiac spikes (98 BPM logged during PostgreSQL deadlock prompt injection).
+                        PPG heart-rate latency monitoring and audio stress level stability markers under injection triggers.
                       </p>
                     </div>
 
                     <div className="glass-card rounded-2xl p-6 border-white/10 bg-black/40 text-left space-y-3">
                       <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest block">Speech & Prosody</span>
                       <div className="text-4xl font-extrabold text-accent-emerald font-mono">
-                        8.8 <span className="text-xs text-gray-500 font-normal">/ 10</span>
+                        {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.speechProsody || 8.8} <span className="text-xs text-gray-500 font-normal">/ 10</span>
                       </div>
                       <p className="text-xs text-gray-400 leading-relaxed">
-                        Vocal pacing average: 134 WPM. Filler words frequency remained within standard bands (only 2 instances logged).
+                        Speech pacing rhythm, confidence signals, grammar alignment, and filler words frequency.
                       </p>
                     </div>
                   </div>
@@ -1482,13 +1998,10 @@ function WorkspaceContent() {
                     </h3>
                     <div className="space-y-3 text-xs text-gray-300 leading-relaxed">
                       <p>
-                        <strong>1. Systems Engineering Assessment:</strong> Candidate presented an optimal approach to transactional scale-out constraints. Answer structures show high objective thinking patterns. Mutex locks constraints were successfully evaluated.
+                        <strong>1. Summary Diagnostics:</strong> {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.summaryText || "Candidate details..."}
                       </p>
                       <p>
-                        <strong>2. Biological composure telemetry:</strong> PPG face coordinate scanning registered zero cognitive load deviation or micro-expression hesitation marks. Voice tension metrics logged optimal levels.
-                      </p>
-                      <p>
-                        <strong>3. Final Recommendation:</strong> Strong hire. Candidate demonstrates architectural familiarity with high-concurrency connection limitations and recovers well under deadlock stress triggers.
+                        <strong>2. Final Recommendation:</strong> {CANDIDATE_DOSSIERS[selectedDossierCandidate]?.recommendText || "Strong recommendation..."}
                       </p>
                     </div>
                   </div>
@@ -1499,93 +2012,100 @@ function WorkspaceContent() {
           </AnimatePresence>
 
           {/* 3. FLOATING SIMULATION CONTROL CAPSULE */}
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[85%] max-w-4xl select-none">
-            <div className="glass-card shadow-2xl rounded-3xl border border-white/15 p-4 flex flex-col md:flex-row gap-4 items-center justify-between backdrop-blur-2xl bg-black/75">
-              
-              {/* Left Playback controls */}
-              <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start shrink-0">
-                <div className="flex items-center gap-2 shrink-0">
+          {activeTab !== "dashboard" && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[85%] max-w-4xl select-none">
+              <div className="glass-card shadow-2xl rounded-3xl border border-white/15 p-4 flex flex-col md:flex-row gap-4 items-center justify-between backdrop-blur-2xl bg-black/75">
+                
+                {/* Left Playback controls */}
+                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={isActive ? stopSimulation : startSimulation}
+                      className={`p-3.5 rounded-full flex items-center justify-center transition-all ${
+                        isActive
+                          ? "bg-accent-coral hover:bg-rose-600 shadow-rose-500/20"
+                          : "bg-accent-blue hover:bg-blue-600 shadow-blue-500/20"
+                      } shadow-lg cursor-pointer shrink-0 border border-white/10`}
+                      title={isActive ? "Pause Interview" : "Simulate Live Interview"}
+                    >
+                      {isActive ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+                    </button>
+                    <button
+                      onClick={() => {
+                        resetSimulation();
+                        setTerminalOutput([
+                          "TensorGo Node compiler initialized.",
+                          "Target environment: Node20-x86_64.",
+                          "Ready to compile connection pooler logic..."
+                        ]);
+                        setIsStressInjected(false);
+                        setCode(CODING_PROMPT);
+                      }}
+                      className="p-3.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-full transition-all border border-white/5 cursor-pointer shrink-0 shadow"
+                      title="Reset Simulation"
+                    >
+                      <RotateCcw size={18} />
+                    </button>
+                  </div>
+
+                  <div className="h-8 w-px bg-white/10 hidden md:block shrink-0" />
+
+                  {/* Time & State display */}
+                  <div className="text-left shrink-0">
+                    <div className="text-[10px] text-gray-400 font-mono tracking-wider uppercase flex items-center gap-1.5 font-semibold">
+                      <span className={`inline-block w-2 h-2 rounded-full ${isActive ? "bg-accent-emerald animate-pulse" : "bg-gray-500"}`} />
+                      {candidateState === "connecting" && "Establishing Stream..."}
+                      {candidateState === "listening" && "Capturing Audio..."}
+                      {candidateState === "answering" && "Analyzing Telemetry"}
+                      {candidateState === "complete" && "Finished"}
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xl font-bold font-mono tracking-tight text-white leading-none">
+                        {formatTime(elapsedTime)}
+                      </span>
+                      {isActive && candidateState === "answering" && (
+                        <span className="text-[10px] text-accent-coral font-mono animate-pulse font-semibold">
+                          {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
+                            ? "104" 
+                            : biometrics.heartRate} BPM | Stress: {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "84" : biometrics.stressIndex}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right simulation actions */}
+                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0">
                   <button
-                    onClick={isActive ? stopSimulation : startSimulation}
-                    className={`p-3.5 rounded-full flex items-center justify-center transition-all ${
-                      isActive
-                        ? "bg-accent-coral hover:bg-rose-600 shadow-rose-500/20"
-                        : "bg-accent-blue hover:bg-blue-600 shadow-blue-500/20"
-                    } shadow-lg cursor-pointer shrink-0 border border-white/10`}
-                    title={isActive ? "Pause Interview" : "Simulate Live Interview"}
+                    onClick={handleTriggerStress}
+                    disabled={!isActive || isStressInjected}
+                    className={`px-4 py-2.5 border border-accent-coral/20 hover:border-accent-coral/45 text-accent-coral disabled:opacity-40 text-xs font-bold font-mono rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow ${
+                      isStressInjected ? "bg-accent-coral/10" : "bg-accent-coral/5 hover:bg-accent-coral/10"
+                    }`}
+                    title="Simulates PostgreSQL node deadlock failover."
                   >
-                    {isActive ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+                    <ShieldAlert size={15} className={isStressInjected ? "animate-pulse text-[#f43f5e]" : ""} />
+                    <span>INJECT STRESS PROMPT</span>
                   </button>
+
                   <button
                     onClick={() => {
-                      resetSimulation();
-                      setTerminalOutput([
-                        "TensorGo Node compiler initialized.",
-                        "Target environment: Node20-x86_64.",
-                        "Ready to compile connection pooler logic..."
-                      ]);
-                      setIsStressInjected(false);
-                      setCode(CODING_PROMPT);
+                      if (activeTab === "workspace") {
+                        setSelectedDossierCandidate(selectedLiveCandidate.id);
+                        setActiveTab("dossier");
+                      } else {
+                        setActiveTab("workspace");
+                      }
                     }}
-                    className="p-3.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-full transition-all border border-white/5 cursor-pointer shrink-0 shadow"
-                    title="Reset Simulation"
+                    className="px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white text-xs font-bold rounded-xl transition-all border border-white/10 cursor-pointer shadow"
                   >
-                    <RotateCcw size={18} />
+                    {activeTab === "workspace" ? "COMPILE DOSSIER" : "WORKSPACE"}
                   </button>
                 </div>
 
-                <div className="h-8 w-px bg-white/10 hidden md:block shrink-0" />
-
-                {/* Time & State display */}
-                <div className="text-left shrink-0">
-                  <div className="text-[10px] text-gray-400 font-mono tracking-wider uppercase flex items-center gap-1.5 font-semibold">
-                    <span className={`inline-block w-2 h-2 rounded-full ${isActive ? "bg-accent-emerald animate-pulse" : "bg-gray-500"}`} />
-                    {candidateState === "connecting" && "Establishing Stream..."}
-                    {candidateState === "listening" && "Capturing Audio..."}
-                    {candidateState === "answering" && "Analyzing Telemetry"}
-                    {candidateState === "complete" && "Finished"}
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-bold font-mono tracking-tight text-white leading-none">
-                      {formatTime(elapsedTime)}
-                    </span>
-                    {isActive && candidateState === "answering" && (
-                      <span className="text-[10px] text-accent-coral font-mono animate-pulse font-semibold">
-                        {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
-                          ? "104" 
-                          : biometrics.heartRate} BPM | Stress: {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "84" : biometrics.stressIndex}%
-                      </span>
-                    )}
-                  </div>
-                </div>
               </div>
-
-              {/* Right simulation actions */}
-              <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0">
-                <button
-                  onClick={handleTriggerStress}
-                  disabled={!isActive || isStressInjected}
-                  className={`px-4 py-2.5 border border-accent-coral/20 hover:border-accent-coral/45 text-accent-coral disabled:opacity-40 text-xs font-bold font-mono rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow ${
-                    isStressInjected ? "bg-accent-coral/10" : "bg-accent-coral/5 hover:bg-accent-coral/10"
-                  }`}
-                  title="Simulates PostgreSQL node deadlock failover."
-                >
-                  <ShieldAlert size={15} className={isStressInjected ? "animate-pulse text-[#f43f5e]" : ""} />
-                  <span>INJECT STRESS PROMPT</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab(activeTab === "workspace" ? "dossier" : "workspace");
-                  }}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white text-xs font-bold rounded-xl transition-all border border-white/10 cursor-pointer shadow"
-                >
-                  {activeTab === "workspace" ? "COMPILE DOSSIER" : "WORKSPACE"}
-                </button>
-              </div>
-
             </div>
-          </div>
+          )}
 
         </div>
 
