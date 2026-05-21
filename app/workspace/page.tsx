@@ -15,6 +15,8 @@ import {
   Shield,
   Smile,
   Settings,
+  Sliders,
+  Volume2,
   Search,
   ArrowLeft,
   Terminal,
@@ -230,7 +232,19 @@ function WorkspaceContent() {
   } = useSimulation();
 
   // Navigation tab for sidebar
-  const [activeTab, setActiveTab] = useState<"workspace" | "dossier" | "dashboard">("dashboard");
+  const [activeTab, setActiveTab] = useState<"workspace" | "dossier" | "dashboard" | "settings">("dashboard");
+
+  // Settings State Hooks
+  const [selectedPersona, setSelectedPersona] = useState<"zai" | "veda" | "kaelen">("zai");
+  const [speakingRate, setSpeakingRate] = useState<number>(1.0);
+  const [verbosity, setVerbosity] = useState<"concise" | "standard" | "verbose">("standard");
+  const [stressSeverity, setStressSeverity] = useState<"low" | "medium" | "high" | "critical">("high");
+  const [autoStress, setAutoStress] = useState<boolean>(false);
+  const [latencySim, setLatencySim] = useState<number>(42);
+  const [showHeartRate, setShowHeartRate] = useState<boolean>(true);
+  const [showLiveness, setShowLiveness] = useState<boolean>(true);
+  const [showAudioWave, setShowAudioWave] = useState<boolean>(true);
+  const [voiceTestActive, setVoiceTestActive] = useState<boolean>(false);
 
   // selected candidate dossier id
   const [selectedDossierCandidate, setSelectedDossierCandidate] = useState<string>("alex-chen");
@@ -391,14 +405,14 @@ function WorkspaceContent() {
         ...prev,
         "Parsing AST structures... Done.",
         "Executing connection dry-run on postgres-mock-server...",
-        "Acquired connection validation check completed in 42ms."
+        `Acquired connection validation check completed in ${latencySim}ms.`
       ]);
     }, 600);
 
     setTimeout(() => {
       setTerminalOutput(prev => [
         ...prev,
-        "✔ Compilation successful. Code base evaluated by Agent Zai.",
+        `✔ Compilation successful. Code base evaluated by Agent ${selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1)}.`,
         "Telemetry check: logic correctiveness rate is 100%."
       ]);
       setIsCompiling(false);
@@ -534,8 +548,22 @@ function WorkspaceContent() {
         </div>
 
         <div className="flex flex-col items-center gap-5 w-full">
-          <button className="p-3 text-gray-500 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+          <button 
+            onClick={() => setActiveTab("settings")}
+            className={`p-3 rounded-xl transition-all cursor-pointer relative group ${
+              activeTab === "settings"
+                ? "text-white bg-white/10 border border-white/10 shadow-lg shadow-black/40"
+                : "text-gray-500 hover:text-white hover:bg-white/5"
+            }`}
+            title="System Settings & Calibration"
+          >
             <Settings size={20} />
+            {activeTab === "settings" && (
+              <span className="absolute right-0 top-1/3 bottom-1/3 w-1 bg-accent-blue rounded-full" />
+            )}
+            <span className="absolute left-24 bg-black/90 text-white text-[9px] font-mono py-1 px-2 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+              System Settings
+            </span>
           </button>
           <div className="w-10 h-10 rounded-full bg-accent-blue/10 border border-accent-blue/35 overflow-hidden flex items-center justify-center text-accent-blue text-xs font-bold font-mono shadow shadow-accent-blue/10">
             AC
@@ -549,13 +577,6 @@ function WorkspaceContent() {
         {/* Floating Top Header Bar */}
         <header className="fixed top-4 left-28 right-4 h-18 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-between px-6 z-40 shadow-xl">
           <div className="flex items-center gap-4">
-            <Link 
-              href="/"
-              className="p-2 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow"
-              title="Back to home"
-            >
-              <ArrowLeft size={16} />
-            </Link>
             {activeTab === "dashboard" ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-650/10 border border-indigo-500/30 overflow-hidden flex items-center justify-center text-xs font-bold text-accent-blue shadow-inner">
@@ -598,6 +619,23 @@ function WorkspaceContent() {
                   </div>
                 </div>
               </div>
+            ) : activeTab === "settings" ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-accent-blue/10 border border-accent-blue/30 overflow-hidden flex items-center justify-center text-xs font-bold text-accent-blue shadow-inner">
+                  <Settings size={18} className="text-accent-blue animate-[spin_10s_linear_infinite]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-sm font-bold text-white tracking-tight">System Settings & Calibration</h1>
+                    <span className="text-[9px] font-mono font-bold text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Control Panel
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5 text-[9.5px] text-gray-400 font-mono">
+                    <span>Configure AI personas, stress factors, and telemetry HUD overlays</span>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-slate-905 border border-white/10 overflow-hidden flex items-center justify-center text-xs font-bold text-gray-300">
@@ -621,14 +659,47 @@ function WorkspaceContent() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button className="px-4 py-2 border border-white/5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow cursor-pointer">
-              <Download size={14} />
-              <span>Download Report</span>
-            </button>
-            <button className="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-blue-500/20 cursor-pointer border border-blue-400/25">
-              <Share2 size={14} />
-              <span>Share Dashboard</span>
-            </button>
+            {activeTab === "settings" ? (
+              <>
+                <button 
+                  onClick={() => {
+                    setSelectedPersona("zai");
+                    setSpeakingRate(1.0);
+                    setVerbosity("standard");
+                    setStressSeverity("high");
+                    setAutoStress(false);
+                    setLatencySim(42);
+                    setShowHeartRate(true);
+                    setShowLiveness(true);
+                    setShowAudioWave(true);
+                  }}
+                  className="px-4 py-2 border border-white/5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow cursor-pointer"
+                >
+                  <RotateCcw size={14} />
+                  <span>Reset Defaults</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    setActiveTab("dashboard");
+                  }}
+                  className="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-blue-500/20 cursor-pointer border border-blue-400/25"
+                >
+                  <Check size={14} />
+                  <span>Apply Config</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="px-4 py-2 border border-white/5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow cursor-pointer">
+                  <Download size={14} />
+                  <span>Download Report</span>
+                </button>
+                <button className="px-4 py-2 bg-accent-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-blue-500/20 cursor-pointer border border-blue-400/25">
+                  <Share2 size={14} />
+                  <span>Share Dashboard</span>
+                </button>
+              </>
+            )}
           </div>
         </header>
 
@@ -925,6 +996,360 @@ function WorkspaceContent() {
 
                 </div>
               </motion.div>
+            ) : activeTab === "settings" ? (
+              <motion.div
+                key="settings-view"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 w-full space-y-8 text-left"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  
+                  {/* Left Section: Configurations (lg:col-span-2) */}
+                  <div className="lg:col-span-2 space-y-6">
+                    
+                    {/* 1. AI Persona Configuration */}
+                    <div className="glass-card border border-white/10 rounded-2xl bg-[#0c0d12]/40 p-6 space-y-6">
+                      <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                        <Cpu size={16} className="text-accent-blue" />
+                        <h2 className="text-xs font-mono font-bold tracking-widest text-white uppercase">AI Interviewer Persona</h2>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Zai Card */}
+                        <div 
+                          onClick={() => setSelectedPersona("zai")}
+                          className={`border rounded-xl p-4 space-y-2 cursor-pointer transition-all ${
+                            selectedPersona === "zai" 
+                              ? "bg-accent-blue/5 border-accent-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.05)]" 
+                              : "border-white/10 hover:border-white/20 bg-white/[0.01]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white font-mono">Agent Zai</span>
+                            {selectedPersona === "zai" && <span className="w-1.5 h-1.5 rounded-full bg-accent-blue shadow-[0_0_6px_rgba(59,130,246,0.8)]" />}
+                          </div>
+                          <p className="text-[10px] text-gray-500 font-mono">Systems & Technical Core</p>
+                          <div className="pt-2 flex items-center justify-between text-[9px] font-mono text-gray-400">
+                            <span>US Accent</span>
+                            <span className="text-accent-emerald bg-accent-emerald/5 px-1.5 py-0.2 rounded">Primary</span>
+                          </div>
+                        </div>
+
+                        {/* Veda Card */}
+                        <div 
+                          onClick={() => setSelectedPersona("veda")}
+                          className={`border rounded-xl p-4 space-y-2 cursor-pointer transition-all ${
+                            selectedPersona === "veda" 
+                              ? "bg-accent-blue/5 border-accent-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.05)]" 
+                              : "border-white/10 hover:border-white/20 bg-white/[0.01]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white font-mono">Agent Veda</span>
+                            {selectedPersona === "veda" && <span className="w-1.5 h-1.5 rounded-full bg-accent-blue shadow-[0_0_6px_rgba(59,130,246,0.8)]" />}
+                          </div>
+                          <p className="text-[10px] text-gray-500 font-mono">Cloud & Systems Architect</p>
+                          <div className="pt-2 flex items-center justify-between text-[9px] font-mono text-gray-400">
+                            <span>UK Accent</span>
+                            <span className="text-accent-cyan bg-accent-cyan/5 px-1.5 py-0.2 rounded">Optional</span>
+                          </div>
+                        </div>
+
+                        {/* Kaelen Card */}
+                        <div 
+                          onClick={() => setSelectedPersona("kaelen")}
+                          className={`border rounded-xl p-4 space-y-2 cursor-pointer transition-all ${
+                            selectedPersona === "kaelen" 
+                              ? "bg-accent-blue/5 border-accent-blue/40 shadow-[0_0_15px_rgba(59,130,246,0.05)]" 
+                              : "border-white/10 hover:border-white/20 bg-white/[0.01]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-white font-mono">Agent Kaelen</span>
+                            {selectedPersona === "kaelen" && <span className="w-1.5 h-1.5 rounded-full bg-accent-blue shadow-[0_0_6px_rgba(59,130,246,0.8)]" />}
+                          </div>
+                          <p className="text-[10px] text-gray-500 font-mono">Product Operations Lead</p>
+                          <div className="pt-2 flex items-center justify-between text-[9px] font-mono text-gray-400">
+                            <span>APAC Accent</span>
+                            <span className="text-accent-amber bg-accent-amber/5 px-1.5 py-0.2 rounded">Optional</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sliders for Speech Pace & Response verbosity */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+                            <span className="flex items-center gap-1.5">
+                              <Volume2 size={12} className="text-accent-blue" />
+                              Speaking Rate
+                            </span>
+                            <span className="text-white font-bold">{speakingRate.toFixed(1)}x</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0.8" 
+                            max="1.5" 
+                            step="0.1" 
+                            value={speakingRate} 
+                            onChange={(e) => setSpeakingRate(parseFloat(e.target.value))}
+                            className="w-full accent-accent-blue h-1 bg-white/10 rounded-lg cursor-pointer appearance-none"
+                          />
+                          <div className="flex justify-between text-[8px] font-mono text-gray-600">
+                            <span>0.8x (Slow)</span>
+                            <span>1.0x (Normal)</span>
+                            <span>1.5x (Fast)</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <span className="text-[10px] font-mono text-gray-400 block">Response Detail Level</span>
+                          <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 gap-1 text-[9px] font-bold font-mono">
+                            {(["concise", "standard", "verbose"] as const).map((v) => (
+                              <button
+                                key={v}
+                                onClick={() => setVerbosity(v)}
+                                className={`flex-grow py-1.5 rounded-lg uppercase tracking-wider transition-colors cursor-pointer ${
+                                  verbosity === v
+                                    ? "bg-accent-blue/15 text-white border border-accent-blue/30"
+                                    : "text-gray-500 hover:text-gray-300 border border-transparent"
+                                }`}
+                              >
+                                {v}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Stress Simulator & System Latency */}
+                    <div className="glass-card border border-white/10 rounded-2xl bg-[#0c0d12]/40 p-6 space-y-6">
+                      <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                        <Activity size={16} className="text-accent-coral" />
+                        <h2 className="text-xs font-mono font-bold tracking-widest text-white uppercase">Stress Simulator Calibration</h2>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <span className="text-[10px] font-mono text-gray-400 block">Simulation Severity Level</span>
+                          <div className="flex flex-wrap gap-2">
+                            {(["low", "medium", "high", "critical"] as const).map((level) => (
+                              <button
+                                key={level}
+                                onClick={() => setStressSeverity(level)}
+                                className={`px-3 py-1.5 border rounded-xl text-[9px] font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                                  stressSeverity === level
+                                    ? level === "critical"
+                                      ? "bg-accent-coral/10 border-accent-coral/40 text-accent-coral shadow-[0_0_10px_rgba(244,63,94,0.15)]"
+                                      : level === "high"
+                                        ? "bg-accent-amber/10 border-accent-amber/40 text-accent-amber shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                                        : "bg-accent-blue/10 border-accent-blue/40 text-accent-blue"
+                                    : "border-white/10 hover:border-white/20 bg-white/[0.01] text-gray-500 hover:text-gray-300"
+                                }`}
+                              >
+                                {level}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-[9px] text-gray-500 font-mono leading-relaxed font-sans">
+                            Controls the heart-rate fluctuations, dialogue stress questions, and network noise parameters injected when clicking the "Inject Stress" capsule trigger.
+                          </p>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono text-gray-400">Automatic Stress Triggers</span>
+                            <button
+                              onClick={() => setAutoStress(!autoStress)}
+                              className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer border ${
+                                autoStress ? "bg-accent-blue border-accent-blue" : "bg-white/5 border-white/10"
+                              }`}
+                            >
+                              <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                                autoStress ? "translate-x-4" : "translate-x-0"
+                              }`} />
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+                              <span>Simulated System Latency</span>
+                              <span className="text-white font-bold">{latencySim} ms</span>
+                            </div>
+                            <input 
+                              type="range" 
+                              min="10" 
+                              max="200" 
+                              value={latencySim} 
+                              onChange={(e) => setLatencySim(parseInt(e.target.value))}
+                              className="w-full accent-accent-blue h-1 bg-white/10 rounded-lg cursor-pointer appearance-none"
+                            />
+                            <div className="flex justify-between text-[8px] font-mono text-gray-600">
+                              <span>10ms (LAN)</span>
+                              <span>200ms (Satellite)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Telemetry Visual HUD Overlays */}
+                    <div className="glass-card border border-white/10 rounded-2xl bg-[#0c0d12]/40 p-6 space-y-6">
+                      <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                        <Sliders size={16} className="text-accent-cyan" />
+                        <h2 className="text-xs font-mono font-bold tracking-widest text-white uppercase">Telemetry HUD Overlays</h2>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="flex items-center justify-between border border-white/5 rounded-xl p-3 bg-white/[0.01]">
+                          <div>
+                            <span className="text-[10px] font-bold text-white font-mono block">Heart Sparklines</span>
+                            <span className="text-[8px] text-gray-500 font-mono">Render biometrics sparkline</span>
+                          </div>
+                          <button
+                            onClick={() => setShowHeartRate(!showHeartRate)}
+                            className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer border ${
+                              showHeartRate ? "bg-accent-blue border-accent-blue" : "bg-white/5 border-white/10"
+                            }`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                              showHeartRate ? "translate-x-4" : "translate-x-0"
+                            }`} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between border border-white/5 rounded-xl p-3 bg-white/[0.01]">
+                          <div>
+                            <span className="text-[10px] font-bold text-white font-mono block">Liveness Scan</span>
+                            <span className="text-[8px] text-gray-500 font-mono">Sweeping WebRTC radar HUD</span>
+                          </div>
+                          <button
+                            onClick={() => setShowLiveness(!showLiveness)}
+                            className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer border ${
+                              showLiveness ? "bg-accent-blue border-accent-blue" : "bg-white/5 border-white/10"
+                            }`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                              showLiveness ? "translate-x-4" : "translate-x-0"
+                            }`} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between border border-white/5 rounded-xl p-3 bg-white/[0.01]">
+                          <div>
+                            <span className="text-[10px] font-bold text-white font-mono block">Diarization Waves</span>
+                            <span className="text-[8px] text-gray-500 font-mono">Diarization frequency waves</span>
+                          </div>
+                          <button
+                            onClick={() => setShowAudioWave(!showAudioWave)}
+                            className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer border ${
+                              showAudioWave ? "bg-accent-blue border-accent-blue" : "bg-white/5 border-white/10"
+                            }`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                              showAudioWave ? "translate-x-4" : "translate-x-0"
+                            }`} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Right Section: Tester Column (lg:col-span-1) */}
+                  <div className="lg:col-span-1 space-y-6">
+                    
+                    {/* Live Tester preview */}
+                    <div className="glass-card border border-white/10 rounded-2xl bg-[#0c0d12]/40 p-6 flex flex-col justify-between h-full min-h-[400px]">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                          <Terminal size={16} className="text-accent-cyan" />
+                          <h2 className="text-xs font-mono font-bold tracking-widest text-white uppercase">Diagnostic Calibration</h2>
+                        </div>
+
+                        {/* Interactive sound sweep visualizer */}
+                        <div className="h-28 bg-black/60 rounded-xl border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-4">
+                          {voiceTestActive ? (
+                            <div className="flex items-center gap-1.5 h-12 w-full justify-center">
+                              {[...Array(15)].map((_, i) => {
+                                const heightVal = [12, 32, 16, 44, 20, 8, 36, 12, 40, 24, 16, 28, 8, 20, 12][i];
+                                return (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ height: 4 }}
+                                    animate={{ height: [4, heightVal, 4] }}
+                                    transition={{
+                                      duration: 0.8 + (i % 3) * 0.15,
+                                      repeat: Infinity,
+                                      ease: "easeInOut"
+                                    }}
+                                    className="w-[4px] bg-accent-blue rounded-full shadow-[0_0_6px_rgba(59,130,246,0.6)]"
+                                  />
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="text-center text-gray-500 font-mono text-[9px] uppercase tracking-wider space-y-2">
+                              <Volume2 size={24} className="mx-auto text-gray-600 mb-1" />
+                              <span>Audio Channel Idle</span>
+                            </div>
+                          )}
+
+                          <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[8px] font-mono text-gray-500">
+                            <span>0.0 Hz</span>
+                            <span>{voiceTestActive ? "CALIBRATING CHANNEL..." : "MIC LINE IDLE"}</span>
+                            <span>24.0 kHz</span>
+                          </div>
+                        </div>
+
+                        {/* Calibration buttons */}
+                        <button
+                          onClick={() => {
+                            setVoiceTestActive(true);
+                            setTimeout(() => setVoiceTestActive(false), 5000);
+                          }}
+                          disabled={voiceTestActive}
+                          className="w-full py-2.5 bg-accent-blue/10 hover:bg-accent-blue text-accent-blue hover:text-white rounded-xl text-[10px] font-bold font-mono tracking-widest uppercase border border-accent-blue/20 hover:border-transparent transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
+                        >
+                          <Zap size={11} className={voiceTestActive ? "animate-spin" : "animate-pulse"} />
+                          <span>{voiceTestActive ? "Testing Channel..." : "Calibrate Microphone"}</span>
+                        </button>
+
+                        {/* Checklist metrics */}
+                        <div className="space-y-2.5 pt-2 text-[10px] font-mono text-gray-400">
+                          <div className="flex items-center justify-between py-1.5 border-b border-white/5">
+                            <span className="text-gray-500">WebRTC Signal</span>
+                            <span className="text-accent-emerald font-bold">EXCELLENT (98%)</span>
+                          </div>
+                          <div className="flex items-center justify-between py-1.5 border-b border-white/5">
+                            <span className="text-gray-500">AES-256 Channel</span>
+                            <span className="text-accent-emerald font-bold">SECURE / ENCRYPTED</span>
+                          </div>
+                          <div className="flex items-center justify-between py-1.5 border-b border-white/5">
+                            <span className="text-gray-500">Node Sync Latency</span>
+                            <span className="text-white font-bold">{latencySim} ms</span>
+                          </div>
+                          <div className="flex items-center justify-between py-1.5">
+                            <span className="text-gray-500">Simulated Persona</span>
+                            <span className="text-accent-cyan font-bold uppercase">{selectedPersona}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] text-[9.5px] font-mono text-gray-500 text-left leading-relaxed font-sans">
+                        <Info size={12} className="text-accent-cyan inline mr-1 -mt-0.5" />
+                        Adjusting the latency simulator updates real-time ticks across active stress tests. Persona shifts affect verbal dialogue accent streams.
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </motion.div>
             ) : activeTab === "workspace" ? (
               <motion.div
                 key="workspace-view"
@@ -992,12 +1417,12 @@ function WorkspaceContent() {
                               exit={{ opacity: 0 }}
                               className="w-full h-full relative overflow-hidden flex items-center justify-center"
                             >
-                              {/* Zai AI Interviewer stream */}
+                              {/* AI Interviewer stream */}
                               <div className="w-full h-full relative overflow-hidden flex items-center justify-center bg-[#02040a]">
                                 {step === 0 && candidateState === "connecting" ? (
                                   <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 font-mono gap-3 p-4 text-center bg-[#02040a]">
                                     <span className="w-2 h-2 rounded-full bg-accent-blue animate-ping" />
-                                    <p className="text-[10px] tracking-widest text-accent-blue font-bold uppercase">ZAI CONNECTING SECURE STREAM...</p>
+                                    <p className="text-[10px] tracking-widest text-accent-blue font-bold uppercase">{selectedPersona.toUpperCase()} CONNECTING SECURE STREAM...</p>
                                     <div className="w-36 bg-white/5 h-1 rounded-full overflow-hidden">
                                       <div className="bg-accent-blue h-full w-[45%] animate-pulse" />
                                     </div>
@@ -1054,10 +1479,10 @@ function WorkspaceContent() {
                                   </div>
                                 )}
 
-                                {/* Zai floating speaker tag */}
+                                {/* AI Interviewer floating speaker tag */}
                                 <div className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] text-white font-mono font-semibold flex items-center gap-2 border border-white/10 shadow-lg shadow-black/80">
                                   <span className={`w-2 h-2 rounded-full ${candidateState === "listening" ? "bg-accent-blue animate-pulse" : "bg-gray-500"}`} />
-                                  <span>Zai (AI Interviewer)</span>
+                                  <span>{selectedPersona.charAt(0).toUpperCase() + selectedPersona.slice(1)} (AI Interviewer)</span>
                                 </div>
                               </div>
 
@@ -1083,33 +1508,40 @@ function WorkspaceContent() {
                                     <div className="absolute inset-0 mesh-grid opacity-10" />
 
                                     {/* Scanning laser sweep */}
-                                    {isActive && candidateState === "answering" && (
+                                    {showLiveness && isActive && candidateState === "answering" && (
                                       <div className="absolute top-0 left-0 w-full h-[6%] bg-gradient-to-b from-accent-cyan/20 to-transparent border-b border-accent-cyan/50 animate-scan pointer-events-none" />
                                     )}
 
                                     {/* Face scanning dots & wires overlay */}
-                                    <div className="relative w-24 h-24 rounded-full border border-white/5 flex items-center justify-center">
-                                      <div className="absolute inset-0 rounded-full border border-dashed border-accent-cyan/20 animate-spin" style={{ animationDuration: '30s' }} />
-                                      
-                                      {/* Face contour lines */}
-                                      <svg className="absolute inset-0 w-full h-full text-accent-cyan opacity-40" viewBox="0 0 100 100">
-                                        <path d="M 20,55 Q 50,75 80,55" fill="none" stroke="currentColor" strokeWidth="0.2" />
-                                        <path d="M 30,32 Q 50,42 70,32" fill="none" stroke="currentColor" strokeWidth="0.2" />
-                                        {faceLandmarks.map((pt, i) => {
-                                          const jitter = meshJitter[i] || { dx: 0, dy: 0 };
-                                          return (
-                                            <circle
-                                              key={i}
-                                              cx={pt.x + jitter.dx}
-                                              cy={pt.y + jitter.dy}
-                                              r={1.2}
-                                              fill={i === 12 || i === 13 ? "#f43f5e" : "#06b6d4"}
-                                            />
-                                          );
-                                        })}
-                                      </svg>
-                                      <User size={16} className="text-white/10" />
-                                    </div>
+                                    {showLiveness ? (
+                                      <div className="relative w-24 h-24 rounded-full border border-white/5 flex items-center justify-center">
+                                        <div className="absolute inset-0 rounded-full border border-dashed border-accent-cyan/20 animate-spin" style={{ animationDuration: '30s' }} />
+                                        
+                                        {/* Face contour lines */}
+                                        <svg className="absolute inset-0 w-full h-full text-accent-cyan opacity-40" viewBox="0 0 100 100">
+                                          <path d="M 20,55 Q 50,75 80,55" fill="none" stroke="currentColor" strokeWidth="0.2" />
+                                          <path d="M 30,32 Q 50,42 70,32" fill="none" stroke="currentColor" strokeWidth="0.2" />
+                                          {faceLandmarks.map((pt, i) => {
+                                            const jitter = meshJitter[i] || { dx: 0, dy: 0 };
+                                            return (
+                                              <circle
+                                                key={i}
+                                                cx={pt.x + jitter.dx}
+                                                cy={pt.y + jitter.dy}
+                                                r={1.2}
+                                                fill={i === 12 || i === 13 ? "#f43f5e" : "#06b6d4"}
+                                              />
+                                            );
+                                          })}
+                                        </svg>
+                                        <User size={16} className="text-white/10" />
+                                      </div>
+                                    ) : (
+                                      <div className="relative w-24 h-24 rounded-full border border-white/5 border-dashed flex flex-col items-center justify-center text-gray-600 font-mono text-[8px] select-none text-center">
+                                        <User size={16} className="text-gray-700 mb-1" />
+                                        <span>Scan Off</span>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
 
@@ -1288,55 +1720,63 @@ function WorkspaceContent() {
                               exit={{ opacity: 0 }}
                               className="space-y-4 pt-2"
                             >
-                              {/* Zai Track */}
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <div className="w-16 font-bold text-accent-blue flex items-center gap-1">
-                                  <Cpu size={11} />
-                                  <span>Zai (AI)</span>
-                                </div>
-                                <div className="flex-1 mx-4 h-8 bg-black/40 rounded-lg overflow-hidden relative border border-white/5 shadow-inner">
-                                  <div className="absolute left-[5%] w-[12%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-r border-accent-blue/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
-                                  </div>
-                                  <div className="absolute left-[30%] w-[18%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-l border-r border-accent-blue/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
-                                  </div>
-                                  <div className="absolute left-[65%] w-[15%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-l border-r border-accent-blue/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
-                                  </div>
-                                </div>
-                                <div className="w-12 text-right text-gray-500">42.70%</div>
-                              </div>
-
-                              {/* Candidate Track */}
-                              <div className="flex items-center justify-between text-xs font-mono">
-                                <div className="w-16 font-bold text-gray-300 flex items-center gap-1">
-                                  <User size={11} className="text-gray-400" />
-                                  <span>Alex</span>
-                                </div>
-                                <div className="flex-1 mx-4 h-8 bg-black/40 rounded-lg overflow-hidden relative border border-white/5 shadow-inner">
-                                  <div className="absolute left-[17%] w-[13%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-r border-accent-coral/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
-                                  </div>
-                                  <div className="absolute left-[48%] w-[17%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-r border-accent-coral/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
-                                  </div>
-                                  <div className="absolute left-[80%] w-[18%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-accent-coral/30 flex items-center justify-center">
-                                    <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
+                              {showAudioWave ? (
+                                <>
+                                  {/* Zai Track */}
+                                  <div className="flex items-center justify-between text-xs font-mono">
+                                    <div className="w-16 font-bold text-accent-blue flex items-center gap-1">
+                                      <Cpu size={11} />
+                                      <span className="capitalize">{selectedPersona} (AI)</span>
+                                    </div>
+                                    <div className="flex-1 mx-4 h-8 bg-black/40 rounded-lg overflow-hidden relative border border-white/5 shadow-inner">
+                                      <div className="absolute left-[5%] w-[12%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-r border-accent-blue/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
+                                      </div>
+                                      <div className="absolute left-[30%] w-[18%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-l border-r border-accent-blue/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
+                                      </div>
+                                      <div className="absolute left-[65%] w-[15%] h-full bg-gradient-to-r from-accent-blue/15 to-accent-blue/25 border-l border-r border-accent-blue/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#3b82f6_2px,#3b82f6_4px)] opacity-40" />
+                                      </div>
+                                    </div>
+                                    <div className="w-12 text-right text-gray-500">42.70%</div>
                                   </div>
 
-                                  {/* Scrubbing playhead bar with glowing top node */}
-                                  {isActive && (
-                                    <motion.div 
-                                      className="absolute top-0 bottom-0 w-[2px] bg-accent-blue shadow-[0_0_8px_#3b82f6] z-10"
-                                      style={{ left: `${Math.min(100, (elapsedTime / 180) * 100)}%` }}
-                                    >
-                                      <span className="absolute -top-0.5 -left-1 w-2.5 h-2.5 rounded-full bg-accent-blue border border-white" />
-                                    </motion.div>
-                                  )}
+                                  {/* Candidate Track */}
+                                  <div className="flex items-center justify-between text-xs font-mono">
+                                    <div className="w-16 font-bold text-gray-300 flex items-center gap-1">
+                                      <User size={11} className="text-gray-400" />
+                                      <span>{selectedLiveCandidate.name.split(" ")[0]}</span>
+                                    </div>
+                                    <div className="flex-1 mx-4 h-8 bg-black/40 rounded-lg overflow-hidden relative border border-white/5 shadow-inner">
+                                      <div className="absolute left-[17%] w-[13%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-r border-accent-coral/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
+                                      </div>
+                                      <div className="absolute left-[48%] w-[17%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-r border-accent-coral/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
+                                      </div>
+                                      <div className="absolute left-[80%] w-[18%] h-full bg-gradient-to-r from-accent-coral/15 to-accent-coral/25 border-l border-accent-coral/30 flex items-center justify-center">
+                                        <span className="w-full h-1/2 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,#f43f5e_2px,#f43f5e_4px)] opacity-40" />
+                                      </div>
+
+                                      {/* Scrubbing playhead bar with glowing top node */}
+                                      {isActive && (
+                                        <motion.div 
+                                          className="absolute top-0 bottom-0 w-[2px] bg-accent-blue shadow-[0_0_8px_#3b82f6] z-10"
+                                          style={{ left: `${Math.min(100, (elapsedTime / 180) * 100)}%` }}
+                                        >
+                                          <span className="absolute -top-0.5 -left-1 w-2.5 h-2.5 rounded-full bg-accent-blue border border-white" />
+                                        </motion.div>
+                                      )}
+                                    </div>
+                                    <div className="w-12 text-right text-gray-500">57.30%</div>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="border border-white/5 border-dashed rounded-xl p-4 bg-white/[0.005] h-[96px] flex items-center justify-center text-gray-500 font-mono text-[9.5px] select-none">
+                                  <span>Audio diarization waveform display disabled in settings</span>
                                 </div>
-                                <div className="w-12 text-right text-gray-500">57.30%</div>
-                              </div>
+                              )}
                             </motion.div>
                           )}
 
@@ -1507,64 +1947,78 @@ function WorkspaceContent() {
                               <div className="grid grid-cols-2 gap-4 pt-1">
                                 
                                 {/* Heart Rate (HR) */}
-                                <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03] transition-all shadow-inner flex flex-col justify-between h-[100px]">
-                                  <div className="flex justify-between items-start">
-                                    <span className="text-[9px] font-bold text-accent-coral uppercase font-mono tracking-wider">Heart Rate</span>
-                                    <Heart size={14} className="text-accent-coral animate-pulse" />
+                                {showHeartRate ? (
+                                  <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03] transition-all shadow-inner flex flex-col justify-between h-[100px]">
+                                    <div className="flex justify-between items-start">
+                                      <span className="text-[9px] font-bold text-accent-coral uppercase font-mono tracking-wider">Heart Rate</span>
+                                      <Heart size={14} className="text-accent-coral animate-pulse" />
+                                    </div>
+                                    <div className="text-xl font-extrabold text-white font-mono mt-1">
+                                      {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
+                                        ? "104" 
+                                        : biometrics.heartRate} <span className="text-[10px] font-normal text-gray-500">bpm</span>
+                                    </div>
+                                    <svg className="w-full h-6 overflow-visible" viewBox="0 0 100 20">
+                                      <defs>
+                                        <linearGradient id="hr-grad" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3" />
+                                          <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+                                        </linearGradient>
+                                      </defs>
+                                      <path
+                                        fill="url(#hr-grad)"
+                                        d={getSparklinePath(hrHistory, 100, 20, 60, 120, true)}
+                                      />
+                                      <path
+                                        fill="none"
+                                        stroke="#f43f5e"
+                                        strokeWidth="1.5"
+                                        d={getSparklinePath(hrHistory, 100, 20, 60, 120, false)}
+                                      />
+                                    </svg>
                                   </div>
-                                  <div className="text-xl font-extrabold text-white font-mono mt-1">
-                                    {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
-                                      ? "104" 
-                                      : biometrics.heartRate} <span className="text-[10px] font-normal text-gray-500">bpm</span>
+                                ) : (
+                                  <div className="border border-white/5 border-dashed rounded-xl p-3 bg-white/[0.005] flex flex-col justify-center items-center h-[100px] text-gray-500 font-mono text-[8px] text-center select-none">
+                                    <Heart size={14} className="text-gray-650 mb-1" />
+                                    <span>Heart rate disabled in settings</span>
                                   </div>
-                                  <svg className="w-full h-6 overflow-visible" viewBox="0 0 100 20">
-                                    <defs>
-                                      <linearGradient id="hr-grad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3" />
-                                        <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
-                                      </linearGradient>
-                                    </defs>
-                                    <path
-                                      fill="url(#hr-grad)"
-                                      d={getSparklinePath(hrHistory, 100, 20, 60, 120, true)}
-                                    />
-                                    <path
-                                      fill="none"
-                                      stroke="#f43f5e"
-                                      strokeWidth="1.5"
-                                      d={getSparklinePath(hrHistory, 100, 20, 60, 120, false)}
-                                    />
-                                  </svg>
-                                </div>
+                                )}
 
                                 {/* HRV */}
-                                <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03] transition-all shadow-inner flex flex-col justify-between h-[100px]">
-                                  <div className="flex justify-between items-start">
-                                    <span className="text-[9px] font-bold text-accent-cyan uppercase font-mono tracking-wider">Heart Rate Var.</span>
-                                    <Activity size={14} className="text-accent-cyan" />
+                                {showHeartRate ? (
+                                  <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03] transition-all shadow-inner flex flex-col justify-between h-[100px]">
+                                    <div className="flex justify-between items-start">
+                                      <span className="text-[9px] font-bold text-accent-cyan uppercase font-mono tracking-wider">Heart Rate Var.</span>
+                                      <Activity size={14} className="text-accent-cyan" />
+                                    </div>
+                                    <div className="text-xl font-extrabold text-white font-mono mt-1">
+                                      {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "32" : 45 + (elapsedTime % 3)} <span className="text-[10px] font-normal text-gray-500">ms</span>
+                                    </div>
+                                    <svg className="w-full h-6 overflow-visible" viewBox="0 0 100 20">
+                                      <defs>
+                                        <linearGradient id="hrv-grad" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
+                                          <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+                                        </linearGradient>
+                                      </defs>
+                                      <path
+                                        fill="url(#hrv-grad)"
+                                        d={getSparklinePath(hrvHistory, 100, 20, 30, 50, true)}
+                                      />
+                                      <path
+                                        fill="none"
+                                        stroke="#06b6d4"
+                                        strokeWidth="1.5"
+                                        d={getSparklinePath(hrvHistory, 100, 20, 30, 50, false)}
+                                      />
+                                    </svg>
                                   </div>
-                                  <div className="text-xl font-extrabold text-white font-mono mt-1">
-                                    {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "32" : 45 + (elapsedTime % 3)} <span className="text-[10px] font-normal text-gray-500">ms</span>
+                                ) : (
+                                  <div className="border border-white/5 border-dashed rounded-xl p-3 bg-white/[0.005] flex flex-col justify-center items-center h-[100px] text-gray-500 font-mono text-[8px] text-center select-none">
+                                    <Activity size={14} className="text-gray-650 mb-1" />
+                                    <span>HRV disabled in settings</span>
                                   </div>
-                                  <svg className="w-full h-6 overflow-visible" viewBox="0 0 100 20">
-                                    <defs>
-                                      <linearGradient id="hrv-grad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
-                                        <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
-                                      </linearGradient>
-                                    </defs>
-                                    <path
-                                      fill="url(#hrv-grad)"
-                                      d={getSparklinePath(hrvHistory, 100, 20, 30, 50, true)}
-                                    />
-                                    <path
-                                      fill="none"
-                                      stroke="#06b6d4"
-                                      strokeWidth="1.5"
-                                      d={getSparklinePath(hrvHistory, 100, 20, 30, 50, false)}
-                                    />
-                                  </svg>
-                                </div>
+                                )}
 
                                 {/* Blood Pressure */}
                                 <div className="border border-white/5 rounded-xl p-3 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03] transition-all shadow-inner flex flex-col justify-between h-[100px]">
@@ -1736,25 +2190,32 @@ function WorkspaceContent() {
                                   </div>
 
                                   {/* High-tech liveness radar scanner */}
-                                  <div className="mt-3 flex flex-col items-center justify-center p-4 border border-white/5 rounded-xl bg-black/40 relative overflow-hidden">
-                                    <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest mb-2">Live WebRTC Radar Feed</span>
-                                    <div className="relative w-24 h-24 border border-accent-blue/20 rounded-full flex items-center justify-center">
-                                      {/* Rotating Radar Line */}
-                                      <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                        className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-blue/10 via-transparent to-transparent pointer-events-none"
-                                        style={{ transformOrigin: 'center' }}
-                                      />
-                                      {/* Dynamic Grid Circles */}
-                                      <div className="absolute inset-4 rounded-full border border-dashed border-white/5" />
-                                      <div className="absolute inset-8 rounded-full border border-dotted border-white/5" />
-                                      {/* Target dots */}
-                                      <span className="absolute top-1/4 left-1/3 w-1.5 h-1.5 rounded-full bg-accent-cyan animate-ping" />
-                                      <span className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 rounded-full bg-accent-coral animate-pulse" />
-                                      <UserCheck size={20} className="text-accent-blue animate-pulse" />
+                                  {showLiveness ? (
+                                    <div className="mt-3 flex flex-col items-center justify-center p-4 border border-white/5 rounded-xl bg-black/40 relative overflow-hidden">
+                                      <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest mb-2">Live WebRTC Radar Feed</span>
+                                      <div className="relative w-24 h-24 border border-accent-blue/20 rounded-full flex items-center justify-center">
+                                        {/* Rotating Radar Line */}
+                                        <motion.div
+                                          animate={{ rotate: 360 }}
+                                          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                          className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-blue/10 via-transparent to-transparent pointer-events-none"
+                                          style={{ transformOrigin: 'center' }}
+                                        />
+                                        {/* Dynamic Grid Circles */}
+                                        <div className="absolute inset-4 rounded-full border border-dashed border-white/5" />
+                                        <div className="absolute inset-8 rounded-full border border-dotted border-white/5" />
+                                        {/* Target dots */}
+                                        <span className="absolute top-1/4 left-1/3 w-1.5 h-1.5 rounded-full bg-accent-cyan animate-ping" />
+                                        <span className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 rounded-full bg-accent-coral animate-pulse" />
+                                        <UserCheck size={20} className="text-accent-blue animate-pulse" />
+                                      </div>
                                     </div>
-                                  </div>
+                                  ) : (
+                                    <div className="mt-3 border border-white/5 border-dashed rounded-xl p-4 bg-white/[0.005] h-[166px] flex flex-col items-center justify-center text-gray-500 font-mono text-[9.5px] select-none text-center">
+                                      <UserCheck size={18} className="text-gray-600 mb-1" />
+                                      <span>Liveness scan disabled in settings</span>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </motion.div>
@@ -2053,9 +2514,14 @@ function WorkspaceContent() {
                       </span>
                       {isActive && candidateState === "answering" && (
                         <span className="text-[10px] text-accent-coral font-mono animate-pulse font-semibold">
-                          {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
-                            ? "104" 
-                            : biometrics.heartRate} BPM | Stress: {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "84" : biometrics.stressIndex}%
+                          {showHeartRate && (
+                            <>
+                              {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 
+                                ? "104" 
+                                : biometrics.heartRate} BPM |{" "}
+                            </>
+                          )}
+                          Stress: {isStressInjected && elapsedTime >= 105 && elapsedTime <= 125 ? "84" : biometrics.stressIndex}%
                         </span>
                       )}
                     </div>
