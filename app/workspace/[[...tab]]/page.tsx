@@ -650,6 +650,16 @@ function WorkspaceContent() {
         {/* Floating Top Header Bar */}
         <header className="fixed top-4 left-28 right-4 h-18 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-between px-6 z-40 shadow-xl">
           <div className="flex items-center gap-4">
+            {/* Back to Home Button */}
+            <Link
+              href="/"
+              className="flex items-center justify-center p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all cursor-pointer group shadow-inner"
+              title="Back to Home"
+            >
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+            </Link>
+            <div className="h-8 w-px bg-white/10 mr-1" />
+
             {activeTab === "dashboard" ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-650/10 border border-indigo-500/30 overflow-hidden flex items-center justify-center text-xs font-bold text-accent-blue shadow-inner">
@@ -2959,6 +2969,20 @@ function WorkspaceContent() {
 }
 
 export default function WorkspacePage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen w-screen bg-[#030303] text-[#f5f5f7] flex items-center justify-center font-mono text-xs text-gray-500">
+        Initializing Workspace...
+      </div>
+    );
+  }
+
   return (
     <SimulationProvider>
       <WorkspaceContent />

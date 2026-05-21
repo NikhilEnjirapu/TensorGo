@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useSimulation } from "@/context/SimulationContext";
-import { Cpu, CircleDot, Menu, X } from "lucide-react";
+import { Cpu, Menu, X } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -32,30 +32,24 @@ export default function Navbar() {
 
         {/* Navigation Links (Desktop) */}
         <nav className="hidden md:flex space-x-8 text-sm font-medium text-gray-400 items-center">
-          <a href="#hero" className="hover:text-white transition-colors">Platform</a>
-          <a href="#problem" className="hover:text-white transition-colors">The Problem</a>
           <a href="#workflow" className="hover:text-white transition-colors">How It Works</a>
           <a href="#dashboard" className="hover:text-white transition-colors">Interview Console</a>
-          <a href="#usecases" className="hover:text-white transition-colors">Use Cases</a>
           <a href="#report" className="hover:text-white transition-colors">AI Dossier</a>
           <Link href="/workspace" className="text-accent-cyan hover:text-cyan-400 transition-colors font-semibold border-l border-white/10 pl-6">Live Workspace</Link>
+          <Link href="/book-demo" className="hover:text-white transition-colors">Book Demo</Link>
         </nav>
 
         {/* Action Button & Status */}
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-xs text-gray-300">
-            <CircleDot size={12} className={isActive ? "text-accent-coral animate-ping" : "text-accent-emerald"} />
-            <span className="font-mono uppercase tracking-wider">
-              {isActive ? `Zai: Active (${candidateState})` : "Zai: Standby"}
-            </span>
-          </div>
-
           <Link
-            href="/book-demo"
-            className="hidden xs:inline-block relative group overflow-hidden px-4 py-2 rounded-xl text-xs font-semibold bg-accent-blue text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-blue-400/20"
+            href="/workspace"
+            className="hidden xs:inline-block relative group overflow-hidden px-4 py-2 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/35 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-cyan-400/30"
           >
-            <span className="relative z-10">Book Demo</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <span className="relative z-10 flex items-center gap-1.5">
+              <span>Enter Workspace</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse" />
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-cyan opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
 
           {/* Hamburger Menu Toggle (Mobile) */}
@@ -73,32 +67,28 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-black/95 backdrop-blur-lg border-b border-white/10 flex flex-col px-6 py-6 space-y-4 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
           <div className="flex flex-col space-y-3 font-medium text-gray-400 text-sm">
-            <a href="#hero" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">Platform</a>
-            <a href="#problem" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">The Problem</a>
             <a href="#workflow" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">How It Works</a>
             <a href="#dashboard" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">Interview Console</a>
-            <a href="#usecases" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">Use Cases</a>
             <a href="#report" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">AI Dossier</a>
             <Link href="/workspace" onClick={closeMobileMenu} className="py-2 text-accent-cyan hover:text-cyan-400 transition-colors font-semibold border-b border-white/5">
               Live Workspace
             </Link>
+            <Link href="/book-demo" onClick={closeMobileMenu} className="py-2 hover:text-white transition-colors border-b border-white/5">
+              Book Demo
+            </Link>
           </div>
 
           <div className="pt-2 flex flex-col gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5 text-xs text-gray-300 w-full justify-center">
-              <CircleDot size={12} className={isActive ? "text-accent-coral animate-ping" : "text-accent-emerald"} />
-              <span className="font-mono uppercase tracking-wider">
-                {isActive ? `Zai: Active (${candidateState})` : "Zai: Standby"}
-              </span>
-            </div>
-
             <Link
-              href="/book-demo"
+              href="/workspace"
               onClick={closeMobileMenu}
-              className="relative group overflow-hidden px-4 py-2.5 rounded-xl text-xs font-semibold bg-accent-blue text-white shadow-lg shadow-blue-500/20 text-center border border-blue-400/20"
+              className="relative group overflow-hidden px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-500/20 text-center border border-cyan-400/30"
             >
-              <span className="relative z-10">Book Demo</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="relative z-10 flex items-center justify-center gap-1.5">
+                <span>Enter Workspace</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-cyan opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
           </div>
         </div>
